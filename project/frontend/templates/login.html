@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <h3>Welcome to Personal Finance Tracker</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="username">Username:</label>
+            <input type="text" placeholder="Username" name="username">
+            <label for="password">Password:</label>
+            <input type="password" placeholder="Password" name="password">
+            <button type="submit">Submit</button>
+        </form>
+        <br>
+        <a href="register/"> Register </a>
+    </body>
+</html>
