@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'useraccounts'
 ]
 
 MIDDLEWARE = [
@@ -55,7 +56,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'frontend/templates/'),
+            os.path.join(BASE_DIR, 'useraccounts/frontend/templates/'),
             ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -118,7 +119,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-
+STATICFILES_DIRS = [
+    BASE_DIR / 'useraccounts/frontend/static'
+]
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 

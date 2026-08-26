@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from . import models
 
 # Create your views here.
 def login_view(request):
@@ -20,7 +21,8 @@ def login_view(request):
             print(f'Login Failed: {e}')
 
     return render(request, template_name='login.html')
-    
+
+
 def register_view(request):
     if request.method == 'POST':
         try:
@@ -36,10 +38,47 @@ def register_view(request):
 
     return render(request, template_name='register.html')
 
+
 def log_out(request):
     logout(request)
     return redirect('/')
 
+
 @login_required
 def home_page(request):
-    return render(request, template_name='home.html', context={'username': f'{request.user.username}'})
+    return render(request, template_name='home.html', context={'username': request.user.username })
+
+
+@login_required
+def transaction_view(request):
+    if request.method == 'POST':
+        transaction_type = request.POST['t_type']
+        amount = request.POST['amount']
+        date = request.POST['date']
+        message = request.POST['message_box'] if request.POST['message_box'] != "" else ""
+
+        try:
+            transaction = models.Transaction.objects.create(
+                user=request.user,
+                transaction_type=transaction_type,
+                amount=amount,
+                date=date,
+                message=message
+            )
+            transaction.save()
+        except Exception as e:
+            print(e)
+        
+    return render(request, template_name='transaction.html', context={'username': request.user.username })
+
+
+@login_required
+def history_view(request):
+    # Showing all the transactions(Expenses and Income) for the current month with the ability to go back in the past to fix or edit anything else.
+    # DB model that I made will be used here.
+    if request.method == "POST":
+        print('Pressed!!!!')
+    
+    h_data = models.Transaction.objects.filter(user=request.user)
+    
+    return render(request, template_name='history.html', context={'username': request.user.username, 'history': h_data })

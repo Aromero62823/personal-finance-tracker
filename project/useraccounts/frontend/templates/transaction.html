@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container px-0 p-4 my-4 bg-light border">
+    <form method="POST" style="justify-self: center; justify-content: center;">
+        {% csrf_token %}
+        <h4>Transaction Information</h4><br>
+        <fieldset>
+            <label for="t_type">Transaction Type:</label>
+            <br/>
+            <input type="radio" name="t_type" value="Income">
+            <label for="i_choice">Income</label>
+            <input type="radio" name="t_type" value="Expense">
+            <label for="e_choice">Expense</label>
+        </fieldset><br>
+
+        <label for="amount">Transaction Amount: </label><br>
+        <input type="number" name="amount" placeholder="Amount"><br><br>
+
+        <label for="date">Date: </label><br>
+        <input type="date" name="date"><br/><br>
+
+        <label for="message_box" class="form-label">Message: </label>
+        <textarea class="form-control form-control-sm" name="message_box" rows="3" placeholder="Optional Note" style="width: 75%;"></textarea><br>
+        
+        <input type="submit" class="btn btn-primary" placeholder="Submit">
+    </form>
+</div>
+{% endblock %}

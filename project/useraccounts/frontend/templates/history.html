@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if history %}
+<br>
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <td>Date</td> <td>Amount</td> <td>Type</td> <td>Message</td> <td> Edit </td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in history %}
+            <tr>
+                <td>{{data.date}}</td>
+                <td>{{data.amount}}</td>
+                <td>{{data.transaction_type}}</td>
+                <td>{{data.message}}</td>
+                <td>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal">
+                        Edit???
+                    </button>
+                </td>
+            </tr>
+            <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" action="POST">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Transaction Information</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Amount: {{data.amount}}
+                        Date: {{data.date}}
+                        Message: {{data.message}}
+                        Type: {{data.transaction_type}}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="saveEdits()">Save changes</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <h5>Nothing to see here....</h5>
+{% endif %}
+
+{%endblock%}
