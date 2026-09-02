@@ -8,4 +8,4 @@ urlpatterns = [
     path(route='logout/', view=views.log_out, name='logout'),
     path(route='home/transactions/', view=views.transaction_view, name='transactions'),
     path(route='home/history/', view=views.history_view, name='history')
-]
+    ]

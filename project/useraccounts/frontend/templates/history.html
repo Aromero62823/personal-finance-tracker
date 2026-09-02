@@ -3,10 +3,10 @@
 {% if history %}
 <br>
 <div>
-    <table class="table">
+    <table class="table table-striped table-hover">
         <thead>
             <tr>
-                <td>Date</td> <td>Amount</td> <td>Type</td> <td>Message</td> <td> Edit </td>
+                <th>Date</th> <th>Amount</th> <th>Type</th> <th>Message</th> <th> Edit </th>
             </tr>
         </thead>
         <tbody>
@@ -17,28 +17,48 @@
                 <td>{{data.transaction_type}}</td>
                 <td>{{data.message}}</td>
                 <td>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal">
-                        Edit???
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit_modal_{{forloop.counter}}">
+                        Edit
                     </button>
                 </td>
             </tr>
-            <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" action="POST">
+            <div class="modal fade" id="edit_modal_{{forloop.counter}}" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
                 <div class="modal-dialog">
+                    {% csrf_token %}
                     <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Transaction Information</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        Amount: {{data.amount}}
-                        Date: {{data.date}}
-                        Message: {{data.message}}
-                        Type: {{data.transaction_type}}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="saveEdits()">Save changes</button>
-                    </div>
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalLabel">Transaction Information</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="amount">Transaction Amount: {{data.amount}}</label>
+                            <button class="btn btn-warning" onclick="unhide('hid-1_{{forloop.counter}}')">Update</button><br>
+                            <input type="number" name="amount" placeholder="New Amount" style="visibility: hidden;" id="hid-1_{{forloop.counter}}"><br>
+
+                            <label for="date">Date: {{data.date}}</label>
+                            <button class="btn btn-warning" onclick="unhide('hid-2_{{forloop.counter}}')">Update</button><br>
+                            <input type="date" name="date" id="hid-2_{{forloop.counter}}" style="visibility: hidden;"><br/><br>
+                        
+                            <label for="message_box" class="form-label">Message: {{data.message}}</label>
+                            <button class="btn btn-warning" onclick="unhide('hid-3_{{forloop.counter}}')">Update</button><br>
+                            <textarea class="form-control form-control-sm" style="visibility: hidden;" name="message_box" rows="3" placeholder="Optional Note" style="width: 75%;" id="hid-3_{{forloop.counter}}"></textarea><br>
+                            
+                            <fieldset>
+                                <label for="t_type">Transaction Type: {{data.transaction_type}}</label>
+                                <button class="btn btn-warning" onclick="unhide('hid-4_{{forloop.counter}}')">Update</button>
+                                <br/>
+                                <input type="radio" name="t_type_{{forloop.counter}}" value="Income" id="hid-4_{{forloop.counter}}">
+                                <label for="i_choice">Income</label>
+                                <input type="radio" name="t_type_{{forloop.counter}}" value="Expense" id="hid-4_{{forloop.counter}}">
+                                <label for="e_choice">Expense</label>
+                               
+                            </fieldset><br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-success" onclick="submitEdits('{{data.id}}', '{{ forloop.counter }}' )">Save changes</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+                        </div>
                     </div>
                 </div>
             </div>
