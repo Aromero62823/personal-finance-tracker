@@ -1,10 +1,9 @@
 <!DOCTYPE html>
+{% load static %}
 <html>
-    <head>
-
-    </head>
+    <head><link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
     <body>
-        <h3>Welcome to Personal Finance Tracker</h3>
+        <h3>Personal Finance Tracker - Login</h3>
         <form method="POST">
             {% csrf_token %}
             <label for="username">Username:</label>

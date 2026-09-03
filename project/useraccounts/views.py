@@ -5,7 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from . import models
 import json
-
+import plotly.express as px
+import pandas as pd
+import numpy as np
+from datetime import date
 # Create your views here.
 def login_view(request):
     logout(request) # Making sure that if there is a user logged in, there session data will be erased
@@ -48,18 +51,44 @@ def log_out(request):
 
 @login_required
 def home_page(request):
-    return render(request, template_name='home.html', context={'username': request.user.username })
+    if request.method == "POST":
+            plot_type = json.loads(request.body)
+
+    # Creating a simple plot to output to the html homepage
+    # Retrieving data
+    transactions = models.Transaction.objects.filter(user=request.user.username)
+    
+    z = {
+        'Date': [x.date for x in transactions],
+        'Amount': [y.amount for y in transactions],
+        'Type' : [y.transaction_type for y in transactions]
+    }
+
+    # Converting data to Dataframe
+    df= pd.DataFrame(z)
+
+    # Initializing the Scatter plot
+    fig = px.pie(df,
+        values='Amount', names='Type', color='Type',
+        title=f'{request.user.username}\'s Scatter Plot'
+        )
+
+    
+    plot = fig.to_html(full_html=False)
+    
+    return render(request, template_name='home.html', context={'username': request.user.username, 'plot': plot })
 
 
 @login_required
 def transaction_view(request):
     if request.method == 'POST':
-        transaction_type = request.POST['t_type']
-        amount = request.POST['amount']
-        date = request.POST['date']
-        message = request.POST['message_box'] if request.POST['message_box'] != "" else ""
-
         try:
+            transaction_type = request.POST['t_type']
+            amount = request.POST['amount']
+            date = request.POST['date']
+            message = request.POST['message_box'] if request.POST['message_box'] != "" else ""
+
+        
             transaction = models.Transaction.objects.create(
                 user=request.user,
                 transaction_type=transaction_type,
@@ -97,4 +126,8 @@ def history_view(request):
             return JsonResponse(data={'error': str(e)}, status=404)
         
         return JsonResponse(data={'message':'Database updated', 'status':'success'}, status=200)
+    if request.method == "DELETE":
+        id = json.loads(request.body)
+        obj = models.Transaction.objects.get(id=id)
+        obj.delete()
     return render(request, template_name='history.html', context={'username': request.user.username, 'history': h_data })

@@ -39,10 +39,56 @@ function submitEdits(id, counter) {
     })
     .then(response => response.json())
     .then(data => console.log('Message: ', data))
+    // Reload the window to show submitted changes
+    window.location.reload()
 }
+
+function deleteQuery(id) {
+    // retreiving token via django middleware
+    djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Get the current url
+    url = window.location.href
+
+    // Send it to the backend via the fetch API
+    fetch(url ,{
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFTOKEN': djangotoken
+        },
+        body: id
+    })
+    .then(response => response.json())
+    .then(data => console.log(`Successfully deleted: ${data}`))
+    // refresh the page after deletion
+    window.location.reload()
+}
+
+// Submit transaction button
+function submitTransaction() {
+    alert('Transaction Submitted')
+}
+
 
 // Simple function to set the visibility attribute to visible when the button is clicked
 function unhide(tag_id) {
     document.getElementById(tag_id).style.visibility = 'visible';
 }
 
+
+function changePlot() {
+    url = window.location.href
+    djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    val = document.getElementById('plots').value;
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFTOKEN': djangotoken
+        },
+        body: JSON.stringify(val)
+    })
+    .then(response => response.json())
+    .then(data => console.log(data));
+}

@@ -1,4 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>This is the Home Page</h2>
+<form action="home/" method="POST">
+    {% csrf_token %}
+    <label for="plots">Select a plot type: </label>
+    <select name="plots" id="plots" onchange="changePlot()">
+        <option value="scatter">Scatter</option>
+        <option value="pie">Pie</option>
+        <option value="bar">Bar</option>
+    </select>
+</form>
+<div class="graph-container">
+    <div class="graph-placeholder">{{plot|safe}}</div>
+</div>
 {% endblock %}
