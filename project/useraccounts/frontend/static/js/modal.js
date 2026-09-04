@@ -75,20 +75,3 @@ function submitTransaction() {
 function unhide(tag_id) {
     document.getElementById(tag_id).style.visibility = 'visible';
 }
-
-
-function changePlot() {
-    url = window.location.href
-    djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    val = document.getElementById('plots').value;
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFTOKEN': djangotoken
-        },
-        body: JSON.stringify(val)
-    })
-    .then(response => response.json())
-    .then(data => console.log(data));
-}

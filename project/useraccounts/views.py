@@ -7,8 +7,8 @@ from . import models
 import json
 import plotly.express as px
 import pandas as pd
-import numpy as np
-from datetime import date
+from datetime import datetime
+
 # Create your views here.
 def login_view(request):
     logout(request) # Making sure that if there is a user logged in, there session data will be erased
@@ -48,35 +48,40 @@ def log_out(request):
     logout(request)
     return redirect('/')
 
+# Helper function to extract values of the transaction model that pertain to the user
+def get_plot(transactions):
+    plot = None
+    curr_date = datetime.now().strftime('%B %Y')
+    if len(transactions) != 0:
+        z = {
+            'Date': [x.date for x in transactions],
+            'Amount': [y.amount for y in transactions],
+            'Type' : [y.transaction_type for y in transactions]
+        }
+
+        # Converting data to Dataframe
+        df  = pd.DataFrame(z)
+
+        # Standard Pie 
+        fig = px.pie(
+            data_frame=df,
+            values='Amount',
+            names='Type',
+            color='Type'
+        )
+
+        plot = fig.to_html(full_html=False)
+    return plot
 
 @login_required
 def home_page(request):
-    if request.method == "POST":
-            plot_type = json.loads(request.body)
-
     # Creating a simple plot to output to the html homepage
     # Retrieving data
     transactions = models.Transaction.objects.filter(user=request.user.username)
-    
-    z = {
-        'Date': [x.date for x in transactions],
-        'Amount': [y.amount for y in transactions],
-        'Type' : [y.transaction_type for y in transactions]
-    }
+    curr_date = datetime.now().strftime('%B %Y')
 
-    # Converting data to Dataframe
-    df= pd.DataFrame(z)
-
-    # Initializing the Scatter plot
-    fig = px.pie(df,
-        values='Amount', names='Type', color='Type',
-        title=f'{request.user.username}\'s Scatter Plot'
-        )
-
-    
-    plot = fig.to_html(full_html=False)
-    
-    return render(request, template_name='home.html', context={'username': request.user.username, 'plot': plot })
+    plot = get_plot(transactions=transactions)
+    return render(request, template_name='home.html', context={'username': request.user.username, 'curr_date': curr_date, 'plot': plot })
 
 
 @login_required

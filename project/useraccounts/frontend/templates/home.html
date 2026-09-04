@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-<form action="home/" method="POST">
-    {% csrf_token %}
-    <label for="plots">Select a plot type: </label>
-    <select name="plots" id="plots" onchange="changePlot()">
-        <option value="scatter">Scatter</option>
-        <option value="pie">Pie</option>
-        <option value="bar">Bar</option>
-    </select>
-</form>
+{% if plot %}
+<br>
+<h4><b>Simple Financial Statistics</b></h4>
+<!-- Displaying the Plot  -->
 <div class="graph-container">
-    <div class="graph-placeholder">{{plot|safe}}</div>
+    <div class="graph-placeholder">{{ plot|safe }}</div>
 </div>
+{% else %}
+<p style="display: flex; position: relative; position: fixed; margin-left: 25%; margin-top: 5%;">
+    <b>Go to the transaction tab to enter data that will parameterise the graph and be shown in the homepage</b>
+</p>
+{% endif %}
 {% endblock %}
