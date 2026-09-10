@@ -3,17 +3,14 @@
 
 {% if history %}
 {% csrf_token %}
-<br>
 <div>
-    <input type="month" style="display: flex; margin-left: 3%;" onchange="updateHistoryView()">
-    <br>
     <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
                 <th>Date</th> <th>Amount</th> <th>Type</th> <th>Message</th> <th> Edit </th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="history_body">
             {% for data in history %}
             <tr>
                 <td>{{data.date}}</td>
@@ -37,7 +34,7 @@
                         <div class="modal-body">
                             <label for="amount">Transaction Amount: {{data.amount}}</label>
                             <button class="btn btn-warning" onclick="unhide('hid-1_{{forloop.counter}}')">Update</button><br>
-                            <input type="number" name="amount" placeholder="New Amount" style="visibility: hidden;" id="hid-1_{{forloop.counter}}"><br>
+                            <input type="number" name="amount" placeholder="New Amount" id="hid-1_{{forloop.counter}}" style="visibility: hidden;"><br>
 
                             <label for="date">Date: {{data.date}}</label>
                             <button class="btn btn-warning" onclick="unhide('hid-2_{{forloop.counter}}')">Update</button><br>

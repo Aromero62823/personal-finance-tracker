@@ -1,15 +1,15 @@
 // Array for the filterMonth() functions
-months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
 // function for the homepage plot - Specifically, filtering month/year
 function filterMonth() {
     // Extracting values from DOM and parsed Date object
-    plot = document.getElementById('plot_graph');
-    date_val = document.getElementById('date_choice').value;
-    djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var plot = document.getElementById('plot_graph');
+    var date_val = document.getElementById('date_choice').value;
+    var djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     // Extracting the Date value as an object to extract month and year values 
-    date = new Date(Date.parse(date_val));
-    month = date.getUTCMonth();
+    var date = new Date(Date.parse(date_val));
+    var month = date.getUTCMonth();
     year=date.getFullYear();
 
     fetch(
@@ -51,18 +51,13 @@ function filterMonth() {
     
 }
 
-// Coming Soon: Will Update the History View with whatever parameters set by the user
-function updateHistoryView() {
-    alert('Changed!')
-}
-
 // Saving Changes of the edited information
 function submitEdits(id, counter) {
-    data = []
+    var data = []
     
     for(let x = 1; x < 5; x++) {
         if(x == 4) {
-            values = document.getElementsByName(`t_type_${counter}`);
+            let values = document.getElementsByName(`t_type_${counter}`);
             for(let i = 0; i < values.length; i++) {
                 if (values[i].checked) {
                     data.push(values[i].value)
@@ -73,7 +68,7 @@ function submitEdits(id, counter) {
             data.push(document.getElementById(`hid-${x}_${counter}`).value);
         }
     }
-    payload = {
+    var payload = {
         'id': id,
         'amount': data[0],
         'date': data[1],
@@ -81,7 +76,7 @@ function submitEdits(id, counter) {
         'transaction_type': data[3]
     }
     // URL for the current window to reference for a POST request
-    curr_url = window.location.href;
+    var curr_url = window.location.href;
 
     // Django Token ref
     const django_token = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -103,10 +98,10 @@ function submitEdits(id, counter) {
 
 function deleteQuery(id) {
     // retreiving token via django middleware
-    djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     // Get the current url
-    url = window.location.href;
+    var url = window.location.href;
 
     // Send it to the backend via the fetch API
     fetch(url ,{
@@ -126,14 +121,14 @@ function deleteQuery(id) {
 // Submit transaction button
 function submitTransaction() {
     // Initializing form data and retreiving data from the formData object
-    form =  new FormData(document.getElementById('transaction_form'));
-    amount = form.get('amount');
-    date = form.get('date');
-    type = form.get('t_type');
+    var form = new FormData(document.getElementById('transaction_form'));
+    var amount = form.get('amount');
+    var date = form.get('date');
+    var type = form.get('t_type');
     // Keeping track of errors
-    error = false;
-    error_message = "";
-    alert_message = [];
+    let error = false;
+    var error_message = "";
+    var alert_message = [];
 
     if(amount == null || amount <= 0) {
         alert_message.push('Invalid amount!');

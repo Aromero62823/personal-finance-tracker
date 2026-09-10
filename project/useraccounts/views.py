@@ -27,16 +27,22 @@ def loginView(request):
 
     return render(request, template_name='login.html')
 
-
+# Registration data that the user sends
 def registerView(request):
     if request.method == 'POST':
         try:
             username = request.POST['username']
             password = request.POST['password']
+            f_name = request.POST['first_name']
+            l_name = request.POST['last_name']
+            # User authentication that will return user if that username already exists in the db, None if the username is unique
             if(authenticate(request, username=username, password=password) is None):
                 print('Creating')
-                User.objects.create_user(username=username, password=password)
+                # First name and last name inputs are optional
+                User.objects.create_user(username=username, password=password, first_name=f_name, last_name=l_name)
                 return redirect('/')
+            else:
+                print('username already exists....')
             
         except Exception as e:
             print(e)
@@ -70,6 +76,8 @@ def get_plot(transactions):
         fig.update_traces(textposition='inside', textinfo='percent+label', insidetextorientation='horizontal')
 
         plot = fig.to_html(full_html=False)
+    else:
+        plot = None
     return plot
 
 # Creating a simple plot to output to the html homepage
@@ -120,7 +128,7 @@ def transactionView(request):
 @login_required
 def historyView(request):
     # Showing all the transactions(Expenses and Income) for the current month with the ability to go back in the past to fix or edit anything else.
-    h_data = models.Transaction.objects.filter(user=request.user)
+    h_data = models.Transaction.objects.filter(user=request.user.username)
     # Updating existing Data(Saving Changes)
     if request.method == 'PUT':
         try:
@@ -149,6 +157,16 @@ def historyView(request):
             obj.delete()
 
     if request.method == "POST":
-        print('Received!')
+        r_date = json.loads(request.body)
+        month = r_date.get('month')
+        year = r_date.get('year')
+        data = models.Transaction.objects.filter(user=request.user.username, date__month=month, date__year=year)
+        payload = {
+            "amount": [x.amount for x in data],
+            "date": [x.date for x in data],
+            "type": [x.transaction_type for x in data],
+            "message": [x.message for x in data]
+        }
+        return JsonResponse({'payload': payload})
 
     return render(request, template_name='history.html', context={'username': request.user.username, 'history': h_data })

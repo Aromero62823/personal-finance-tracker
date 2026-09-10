@@ -1,16 +1,31 @@
 {% extends 'base.html' %}
 {% block main_content %}
-<h3>Personal Finance Tracker - Register</h3>
-<form method="POST">
-    {% csrf_token %}
-    <label for="username">Username: </label>
-    <input type="text" placeholder="Username" name="username">
-
-    <label for="password">Password: </label>
-    <input type="password" placeholder="Password" name="password">
-
-    <input type="submit" placeholder="Submit">
-</form>
+<h3>Create an Account</h3>
+<br>
+<div class="container pt-3 bg-light border rounded-3" style="padding-bottom: 20%;">
+    <br>
+    <form method="POST" class="main_form" autocomplete="off">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="first_name" class="form-label">First Name: </label>
+            <input type="text" class="form-control" placeholder="First Name" name="first_name">
+        </div>
+        <div class="mb-3">
+            <label for="last_name" class="form-label">Last Name: </label>
+            <input type="text" class="form-control" placeholder="Last Name" name="last_name">
+        </div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Username: </label>
+            <input type="text" class="form-control" placeholder="Username" name="username">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password: </label>
+            <input type="password" class="form-control" name="password" placeholder="Password">
+        </div>
+        <button type="submit" class="btn btn-info" id="confirm_btn">Submit</button>
+        <br>
+        <a href="/" class="badge bg-dark" id="lnk">Login</a>
+    </form>
+</div>
 <br/>
-<a href="/">Login</a>
 {% endblock %}

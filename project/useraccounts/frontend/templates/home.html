@@ -9,6 +9,7 @@
 
 <form method="POST" style="margin-left: 3%;">
     {% csrf_token %}
+    <label for='date_choice'><h6>Choose Month/Year:  </h6></label>
     <input type="month" onchange="filterMonth()" id="date_choice">
 </form>
 

@@ -1,7 +1,7 @@
 {% extends 'navbar.html' %}
 {% block main_content %}
 <div class="container px-0 p-4 my-4 bg-light border">
-    <form method="POST" style="display: flexbox; justify-self: center; justify-content: center;" id="transaction_form">
+    <form method="POST" style="display: flexbox; justify-self: center; justify-content: center;" autocomplete="off" id="transaction_form">
         {% csrf_token %}
         <h4>Transaction Information</h4><br>
         <fieldset>
