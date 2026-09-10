@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block nav_content %}
+<ul class="nav nav-tabs nav-justified">
+    <li class="nav-item">
+        <a class="nav-link disabled" aria-current="page" href="#">Hello, {{username}}!</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/home/"> Home </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/home/transactions/">Add Transaction</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/home/history/">History</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/logout/" tabindex="-2" >Logout</a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block main_content %} {% endblock %}
+
+

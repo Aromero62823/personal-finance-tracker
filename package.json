@@ -1,0 +1,24 @@
+{
+  "name": "personal-finance-tracker",
+  "version": "1.0.0",
+  "description": "Having trouble managing your money? Checks disappearing after unnecessary constant shopping sprees? This application may be for you! Be warned! This is my first application utilizing the skills acquired from the IBM Full Stack Developer Certification Course offered on Coursera.  I hope it may aid in your financial endeavors!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aromero62823/personal-finance-tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Aromero62823/personal-finance-tracker/issues"
+  },
+  "homepage": "https://github.com/Aromero62823/personal-finance-tracker#readme",
+  "dependencies": {
+    "plotly.js-dist": "^4.1.0"
+  }
+}

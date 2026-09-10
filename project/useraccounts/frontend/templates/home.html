@@ -1,15 +1,29 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'navbar.html' %}
+{% block main_content %}
 {% if plot %}
 <br>
-<h4><b>Simple Financial Statistics</b></h4>
+<h4>
+    <b>Financial Statistics for: <span id="home_header">Ongoing Total</span></b>
+</h4>
+<br>
+
+<form method="POST" style="margin-left: 3%;">
+    {% csrf_token %}
+    <input type="month" onchange="filterMonth()" id="date_choice">
+</form>
+
 <!-- Displaying the Plot  -->
 <div class="graph-container">
-    <div class="graph-placeholder">{{ plot|safe }}</div>
+    <div class="graph-placeholder" id="plot_graph">
+        {{ plot|safe }}
+    </div>
 </div>
+
 {% else %}
+
 <p style="display: flex; position: relative; position: fixed; margin-left: 25%; margin-top: 5%;">
     <b>Go to the transaction tab to enter data that will parameterise the graph and be shown in the homepage</b>
 </p>
+
 {% endif %}
 {% endblock %}

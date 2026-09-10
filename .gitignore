@@ -3,9 +3,14 @@ venv/
 
 __pycache__/
 
-*.py[cod[
+*.pyc
 
 *$py.class
 .vscode/
 
 db.sqlite3
+
+node_modules/
+
+.env
+.env.local

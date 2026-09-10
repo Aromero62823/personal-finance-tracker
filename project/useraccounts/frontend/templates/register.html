@@ -1,19 +1,16 @@
-<!DOCTYPE html>
-<html>
-    <head></head>
-    <body>
-        <h3>Personal Finance Tracker - Register</h3>
-        <form method="POST">
-            {% csrf_token %}
-            <label for="username">Username: </label>
-            <input type="text" placeholder="Username" name="username">
+{% extends 'base.html' %}
+{% block main_content %}
+<h3>Personal Finance Tracker - Register</h3>
+<form method="POST">
+    {% csrf_token %}
+    <label for="username">Username: </label>
+    <input type="text" placeholder="Username" name="username">
 
-            <label for="password">Password: </label>
-            <input type="password" placeholder="Password" name="password">
+    <label for="password">Password: </label>
+    <input type="password" placeholder="Password" name="password">
 
-            <input type="submit" placeholder="Submit">
-        </form>
-        <br/>
-        <a href="/">Login</a>
-    </body>
-</html>
+    <input type="submit" placeholder="Submit">
+</form>
+<br/>
+<a href="/">Login</a>
+{% endblock %}
