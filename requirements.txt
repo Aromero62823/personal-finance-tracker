@@ -1,5 +1,6 @@
 asgiref==3.12.1
 Django==6.1
+gunicorn==26.2.0
 narwhals==2.25.0
 numpy==2.5.2
 packaging==26.3
