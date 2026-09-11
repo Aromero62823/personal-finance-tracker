@@ -27,13 +27,23 @@ I think financial stability is an essential step for anyone wanting to become re
 
 ### While in the application:
   1. Register if you do not have an account ---> first and last name aren't required but password and username are!
-  2. Login with credentials
-  3. You will notice that the homepage and the history page are empty, enter a transaction to parameterise both pages
+<img width="1491" height="958" alt="registration_page" src="https://github.com/user-attachments/assets/fdfb2ef4-b613-4831-bf07-c24c7640302d" />
+  3. Login with credentials
+<img width="1587" height="966" alt="login_page" src="https://github.com/user-attachments/assets/58e15e80-ccbe-45be-b6e6-8acd1691d5e4" />
+  5. You will notice that the homepage and the history page are empty, enter a transaction to parameterise both pages
+<img width="1856" height="866" alt="empty_home" src="https://github.com/user-attachments/assets/9ff3b5f0-d97d-42d8-a295-7f9a0fba1b18" />
 
 ### Pages:
   Home: Displays a graph that reflects your total transactions, Empty if no transactions are entered by the user(new user or filtered to a date where no transactions correlate to that date(month/year))
+<img width="1855" height="793" alt="home_filled" src="https://github.com/user-attachments/assets/0ce60bde-1716-4cbe-9878-9e1b0a60f711" />
+
   Add a Transaction: Add a transaction by; specifying type(Income/Expense), Amount, Date of transaction, and an optional message.
+<img width="1847" height="811" alt="transaction" src="https://github.com/user-attachments/assets/76d0d1a3-1af0-4767-b880-c95c5be9f72d" />
+
   History: Where you may edit previous, view total, or delete transactions.
+<img width="1851" height="650" alt="history_filled" src="https://github.com/user-attachments/assets/0fd9ed68-27cf-40ee-8346-718feb982332" />
+<img width="1858" height="876" alt="history_edit" src="https://github.com/user-attachments/assets/64e018b5-d9dd-4a5b-a6a7-93cb6aa573b9" />
+
   
 ## Where to get help and provide feedback
 Help/Feedback:
