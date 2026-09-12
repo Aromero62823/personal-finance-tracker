@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.conf import settings
+from django.views.static import serve
 
 urlpatterns = [
     path('', include("useraccounts.urls")), # Login/Registration made for user login and registration
