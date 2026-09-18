@@ -124,7 +124,7 @@ function submitTransaction() {
     var form = new FormData(document.getElementById('transaction_form'));
     var amount = form.get('amount');
     var date = form.get('date');
-    var type = form.get('t_type');
+
     // Keeping track of errors
     let error = false;
     var error_message = "";
@@ -137,11 +137,6 @@ function submitTransaction() {
 
     if(date == "" || date == null) {
         alert_message.push('Invalid date value!');
-        error=true;
-    }
-
-    if(type == null || type == "") {
-        alert_message.push('Transaction type not specified!');
         error=true;
     }
 
@@ -159,4 +154,5 @@ function submitTransaction() {
 function unhide(tag_id) {
     document.getElementById(tag_id).style.visibility = 'visible';
 }
+
 

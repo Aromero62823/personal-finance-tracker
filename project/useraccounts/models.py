@@ -8,7 +8,14 @@ class Transaction(models.Model):
         to_field='username',
         on_delete=models.CASCADE
     )
-    transaction_type = models.CharField(max_length=20, null=False)
+    # added the transaction choices
+    transaction_choices = [
+        ('income', 'Income'),
+        ('expense', 'Expense')
+    ]
+    
+    transaction_type = models.CharField(max_length=7, null=False, choices=transaction_choices, default='income')
+    
     amount = models.FloatField(null=False)
     date = models.DateField()
     message = models.TextField(max_length=300)

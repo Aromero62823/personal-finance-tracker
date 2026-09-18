@@ -24,7 +24,7 @@ CSRF_TRUSTED_ORIGINS = ['https://personal-finance-tracker-pi8z.onrender.com']
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'personal-finance-tracker-pi8z.onrender.com', '0.0.0.0']
 
@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'useraccounts'
+    'useraccounts',
 ]
 
 MIDDLEWARE = [

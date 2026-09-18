@@ -5,19 +5,84 @@
         {% csrf_token %}
         <h4>Transaction Information</h4><br>
         <fieldset>
-            <label for="t_type">Transaction Type:</label>
-            <br/>
-            <input type="radio" name="t_type" value="Income">
+            <legend style="font-size: 1.02rem;">Type: </legend>
+            <input type="radio" name="t_type" value="Income" id="i_choice" checked>
             <label for="i_choice">Income</label>
-            <input type="radio" name="t_type" value="Expense">
+            <input type="radio" name="t_type" value="Expense" id="e_choice">
             <label for="e_choice">Expense</label>
-        </fieldset><br>
+        </fieldset><br/>
+
+        <a href="#demo" data-bs-toggle="collapse">Collapsible</a>
+
+        <fieldset class="collapse" id="collapse">
+            <legend style="font-size: 1.02rem;">Expense Category: </label><br/>
+            <input type="radio" value="food" name="sub_e_type" id="food_type">
+            <label for="food_type">Food/Grocery</label><br/>
+
+            <input type="radio" value="housing" name="sub_e_type" id="housing_type">
+            <label for="housing_type">Housing/Utilities</label><br/>
+
+            <input type="radio" value="personal" name="sub_e_type" id="personal_type">
+            <label for="personal_type">Personal</label><br/>
+
+            <input type="radio" value="transportation" name="sub_e_type" id="transportation_type">
+            <label for="transportation_type">Transportation</label><br/>
+
+            <input type="radio" value="financial" name="sub_e_type" id="financial_type">
+            <label for="financial_type">Financial/Debt</label><br/>
+        </fieldset>
+
+
+        <fieldset>
+            <legend style="font-size: 1.02rem;">Income Category: </label><br/>
+            <input type="radio" value="earned" name="sub_i_type" id="earned_type">
+            <label for="earned_type">Earned</label><br/>
+        </fieldset>
 
         <label for="amount">Transaction Amount: </label><br>
-        <input type="number" name="amount" placeholder="Amount"><br><br>
+        <input type="number" name="amount" placeholder="Amount" required><br><br>
 
         <label for="date">Date: </label><br>
-        <input type="date" name="date"><br/><br>
+        <input type="date" name="date" required><br/><br>
+
+        <label for="re_charge">Recurring Transaction? </label>
+        <input type="checkbox" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#charge_m">
+
+        <br><br>
+        <!-- Modal to specify the recurring Charge -->
+        <div class="modal fade" id="charge_m" tabindex="-1" aria-labelledby="chargeModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="chargeModal">Recurring transaction Information</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- If the recurring selector is selected, there would be an input to show how often it would happen during every week, month, or year -->
+                        <div id="re_date">
+                            <fieldset>
+                                <label for="date_type">When is this transaction's recurrence date? </label><br>
+                                <label for="d_val">Daily</label>
+                                <input type="radio" value="daily" name="date_type" id="d_val">
+                                <label for="w_val">Weekly</label>
+                                <input type="radio" value="weekly" name="date_type" id="w_val">
+                                <label for="m_val">Monthly</label>
+                                <input type="radio" value="monthly" name="date_type" id="m_val">
+                                <label for="a_val">Annually</label>
+                                <input type="radio" value="annually" name="date_type" id="a_val">
+                            </fieldset><br>
+
+                            <label for="charge_date">Enter the Date for the recurring Charge: </label><br>
+                            <input type="date" id="charge_date_ym">
+                        </div><br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetChanges()">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <label for="message_box" class="form-label">Message: </label>
         <textarea class="form-control form-control-sm" name="message_box" rows="3" placeholder="Optional Note" style="width: 75%;"></textarea><br>
