@@ -55,25 +55,41 @@ function filterMonth() {
 function submitEdits(id, counter) {
     var data = []
     
-    for(let x = 1; x < 5; x++) {
+    for(let x = 1; x < 6; x++) {
         if(x == 4) {
             let values = document.getElementsByName(`t_type_${counter}`);
             for(let i = 0; i < values.length; i++) {
                 if (values[i].checked) {
                     data.push(values[i].value)
-                    break
+                    continue;
+                }
+            }
+        } else if (x == 5) {
+            let subs = []
+            if(data[3] == 'Income') {
+                subs = document.getElementsByName(`sub_i_type_${counter}`);
+            } else if(data[4] == 'Expense'){
+                subs = document.getElementsByName(`sub_e_type_${counter}`);
+            } else {
+                break
+            }
+            for(let i = 0;i < subs.length;i++) {
+                if (subs[i].checked) {
+                    data.push(subs[i].value)
                 }
             }
         } else {
             data.push(document.getElementById(`hid-${x}_${counter}`).value);
         }
     }
+
     var payload = {
         'id': id,
         'amount': data[0],
         'date': data[1],
         'message': data[2],
-        'transaction_type': data[3]
+        'transaction_type': data[3],
+        'subtransaction_type': data[4]
     }
     // URL for the current window to reference for a POST request
     var curr_url = window.location.href;
@@ -96,6 +112,7 @@ function submitEdits(id, counter) {
     window.location.reload()
 }
 
+// Deleting a Query from a database via the id provided
 function deleteQuery(id) {
     // retreiving token via django middleware
     var djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -118,41 +135,89 @@ function deleteQuery(id) {
     window.location.reload();
 }
 
-// Submit transaction button
-function submitTransaction() {
-    // Initializing form data and retreiving data from the formData object
-    var form = new FormData(document.getElementById('transaction_form'));
-    var amount = form.get('amount');
-    var date = form.get('date');
-
-    // Keeping track of errors
-    let error = false;
-    var error_message = "";
-    var alert_message = [];
-
-    if(amount == null || amount <= 0) {
-        alert_message.push('Invalid amount!');
-        error=true;
-    }
-
-    if(date == "" || date == null) {
-        alert_message.push('Invalid date value!');
-        error=true;
-    }
-
-    if(error == true) {
-        for(let x in alert_message) {
-            error_message = error_message + `${alert_message[x]}\n`
-        }
-        alert(error_message);
-    } else {
-        alert('Transaction Submitted Successfully');
-    }
-}
-
 // Simple function to set the visibility attribute to visible when the button is clicked
 function unhide(tag_id) {
     document.getElementById(tag_id).style.visibility = 'visible';
 }
 
+// Enabling the fieldset
+function enableRange(id) {
+    date_range = document.getElementById(id);
+    if (date_range.disabled == true) {
+        date_range.disabled = false;
+    }
+}
 
+// Disabling the fieldset
+function disableRange(id) {
+    date_range = document.getElementById(id);
+    if (date_range.disabled == false) {
+        date_range.disabled = true;
+    }
+}
+
+// Enabing sub groups to be disabled/enabled when Income or Expense is selected
+function enableSubGroup(id1, id2) {
+    obj1 = document.getElementById(id1);
+    obj2 = document.getElementById(id2);
+
+    if(obj1.disabled == true) { 
+        obj1.disabled = false;
+        obj2.disabled = true;
+    }
+}
+
+// Checking form data and sending data as a POST request
+function submitTransaction() {
+    // Transaction type
+    let t_type = document.querySelector('input[name=t_type]:checked').value;
+    // Sub-transaction type
+    let sub_type;
+    if (t_type == 'income') { 
+        sub_type = document.querySelector('input[name=sub_i_type]:checked').value; 
+    }
+    else { 
+        sub_type = document.querySelector('input[name=sub_e_type]:checked').value; 
+    }
+
+    // Amount of the transaction
+    let amount = document.getElementById('amount_id').value;
+
+    // Date of the transaction
+    let date = document.getElementById('date_id').value;
+
+    // Whether or not the transaction is recurring via boolean value
+    let recur = (document.querySelector('input[name=recur_choice]:checked').value === "yes");
+    
+    // The date range via the recur type
+    let recur_type;
+    if (recur) { 
+        recur_type = document.querySelector('input[name=date_type]:checked').value; 
+    }
+    else { recur_type = "N/A"; }
+
+    // Message that is optional and describes the transaction in more detail
+    let message = document.getElementById('message_id').value;
+
+    // Initializing the Payload
+     let payload = {
+        t_type,
+        sub_type,
+        amount,
+        date,
+        recur,
+        recur_type,
+        message
+    }
+
+    // Fetch api
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type':'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response =>console.log(response['status']))
+}

@@ -101,28 +101,30 @@ def homepage(request):
 
     return render(request, template_name='home.html', context={'username': request.user.username, 'curr_date': curr_date, 'plot': plot })
 
-
+# View for the Transaction Page
 @login_required
 def transactionView(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
-            transaction_type = request.POST['t_type']
-            amount = request.POST['amount']
-            date = request.POST['date']
-            message = request.POST['message_box'] if request.POST['message_box'] != "" else ""
-
+            # Parsing the body of the request
+            data = json.loads(request.body)
+            
             transaction = models.Transaction.objects.create(
                 user=request.user,
-                transaction_type=transaction_type,
-                amount=amount,
-                date=date,
-                message=message
+                transaction_type=data['t_type'],
+                subtransaction_type=data['sub_type'],
+                recurring=data['recur'],
+                recurring_type=data['recur_type'],
+                amount=data['amount'],
+                date=data['date'],
+                message=data['message']
             )
+
             transaction.save()
         except Exception as e:
-            print(f'Error: {e}')
+            return JsonResponse({'error': e})
         
-    return render(request, template_name='transaction.html', context={'username': request.user.username })
+    return render(request, template_name='transaction.html', context={'username': request.user.username }, status=200)
 
 
 @login_required
