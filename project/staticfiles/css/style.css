@@ -12,10 +12,7 @@ h4 {
     align-self: center;
     justify-self: center;
     text-shadow: 2px 3px 3px lightgrey;
-}
-
-.legend-type {
-    font-size: 1.1rem;
+    color: red;
 }
 
 a {
@@ -46,4 +43,9 @@ a:hover {
     display: flexbox;
     justify-self: center;
     justify-content: center;
+}
+
+legend {
+    font-size: 1.02rem;
+    color: red;
 }

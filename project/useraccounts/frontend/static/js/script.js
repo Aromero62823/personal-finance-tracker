@@ -219,5 +219,28 @@ function submitTransaction() {
         },
         body: JSON.stringify(payload)
     })
-    .then(response =>console.log(response['status']))
+    .then(response => {
+        if(response.ok) {
+            window.location.reload();
+        }
+        console.log(response.json());
+    })
+    .catch(error => console.error(error))
+}
+
+// Parameterising the modal with the checked inputs that correlate with the data
+function openModal(modalId, t_type, sub_type) {
+    let modalElement = document.getElementById(modalId);
+    const modalInstance = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+    // Parameterise the modal inputs before it is shown
+    let sub;
+    // Subcategory
+    if(t_type === 'income') {
+        alert('INCOME')
+        document.getElementsByName(`sub_i_type[value=${sub_type}]`).checked = true;
+    } else {
+        let eleVal = document.querySelector(`[name="sub_e_type"][value="${sub_type}"]`).checked = true;
+        alert(eleVal.checked)
+    }
+    modalInstance.show();
 }

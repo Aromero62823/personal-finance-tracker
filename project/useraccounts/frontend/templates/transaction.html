@@ -6,7 +6,7 @@
         {% csrf_token %}
         <!-- Identifying the type of transaction (Expense/Income) -->
         <fieldset>
-            <legend style="font-size: 1.02rem;">Type: </legend>
+            <legend>Type: </legend>
             <input type="radio" name="t_type" value="income" id="i_choice" onclick="enableSubGroup('sub_income', 'sub_expense')" checked>
             <label for="i_choice">Income</label>
             <input type="radio" name="t_type" value="expense" id="e_choice" onclick="enableSubGroup('sub_expense', 'sub_income')">
@@ -15,7 +15,7 @@
 
         <!-- Subcategories for Income -->
         <fieldset id="sub_income">
-            <legend style="font-size: 1.02rem;">Income Category: </legend><br/>
+            <legend>Income Category: </legend><br/>
 
             <input type="radio" value="earned" name="sub_i_type" id="earned_type" checked>
             <label for="earned_type">Earned</label><br/>
@@ -29,7 +29,7 @@
 
         <!-- Optional information about your expenses (sub-category) -->
         <fieldset id="sub_expense" disabled="true">
-            <legend style="font-size: 1.02rem;">Expense Category: </legend><br/>
+            <legend>Expense Category: </legend><br/>
             <input type="radio" value="food" name="sub_e_type" id="food_type" checked>
             <label for="food_type">Food/Grocery</label><br/>
 
@@ -55,16 +55,17 @@
         <input type="date" name="date" id="date_id" required><br/><br>
 
         <!-- Determine whether or not the transaction is recurring(Monthly, weekly, daily, etc.) -->
-        <label for="recur_choice_fieldset">Recurring Transaction? </label>
         <fieldset id="recur_choice_fieldset">
+            <legend>Recurring Transaction? </legend>
             <input type="radio" value="yes" id="recur_yes" name="recur_choice" onclick="enableRange('date_range_id')">
             <label for="recur_yes">Yes</label>
             <input type="radio" value="no" id="recur_no" name="recur_choice" onclick="disableRange('date_range_id')" checked>
-            <labelf for="recur_no">No</labelf>
+            <label for="recur_no">No</labelf>
         </fieldset><br/>
 
+        <!-- Date range via the re-incurring charge (daily, weekly, monthly, and annually) -->
         <fieldset id="date_range_id" disabled="true">
-            <label for="date_type">When is this transaction's recurrence date? </label><br>
+            <legend>When is this transaction's recurrence date? </legend><br>
             <label for="d_val">Daily</label>
             <input type="radio" value="daily" name="date_type" id="d_val">
             <label for="w_val">Weekly</label>
@@ -79,6 +80,7 @@
         <label for="message_id" class="form-label">Message: </label>
         <textarea class="form-control form-control-sm" name="message" id="message_id" rows="3" placeholder="Optional Note" style="width: 75%;"></textarea><br>
         
+        <!-- Button that will reload the page when the HTTP status code returns  200, else it would just stay on this page. -->
         <button type="button" class="btn btn-primary" onclick="submitTransaction()">Submit</button>
     </form>
 </div>

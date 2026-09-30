@@ -7,7 +7,7 @@
     <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
-                <th>Date</th> <th>Amount</th> <th>Type</th> <th>SubCategory</th><th>Message</th> <th> Edit </th>
+                <th>Date</th> <th>Amount</th> <th>Type</th> <th>SubCategory</th> <th>Recurring Transaction</th> <th>Recurring Date</th> <th>Message</th> <th> Edit </th>
             </tr>
         </thead>
         <tbody id="history_body">
@@ -17,9 +17,11 @@
                 <td>{{data.amount}}</td>
                 <td>{{data.transaction_type}}</td>
                 <td>{{data.subtransaction_type}}</td>
+                <td>{{data.recurring}}</td>
+                <td>{{data.recurring_type}}</td>
                 <td>{{data.message}}</td>
                 <td>
-                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit_modal_{{forloop.counter}}">
+                    <button type="button" class="btn btn-warning"  onclick="openModal('edit_modal_{{forloop.counter}}', '{{data.transaction_type}}', '{{data.subtransaction_type}}')">
                         Edit
                     </button>
                 </td>
@@ -46,7 +48,7 @@
                             <textarea class="form-control form-control-sm" style="visibility: hidden;" name="message_box" rows="3" placeholder="Optional Note" style="width: 75%;" id="hid-3_{{forloop.counter}}"></textarea><br>
                             
                             <fieldset>
-                                <label for="t_type">Transaction Type: {{data.transaction_type}}</label>
+                                <legend for="t_type">Transaction Type: {{data.transaction_type}}</legend>
                                 <br/>
                                 <input type="radio" name="t_type_{{forloop.counter}}" value="Income" id="i_choice_{{forloop.counter}}">
                                 <label for="i_choice">Income</label>
@@ -55,37 +57,40 @@
                             </fieldset><br>
 
                             <p>Subcategory: {{data.subtransaction_type}}</p>
-                            <fieldset>
-                                <legend style="font-size: 1.02rem;">Expense Category: </label><br/>
-                                <input type="radio" value="food" name="sub_e_type_{{forloop.counter}}" id="food_type">
-                                <label for="food_type">Food/Grocery</label><br/>
-
-                                <input type="radio" value="housing" name="sub_e_type_{{forloop.counter}}" id="housing_type">
-                                <label for="housing_type">Housing/Utilities</label><br/>
-
-                                <input type="radio" value="personal" name="sub_e_type_{{forloop.counter}}" id="personal_type">
-                                <label for="personal_type">Personal</label><br/>
-
-                                <input type="radio" value="transportation" name="sub_e_type_{{forloop.counter}}" id="transportation_type">
-                                <label for="transportation_type">Transportation</label><br/>
-
-                                <input type="radio" value="financial" name="sub_e_type_{{forloop.counter}}" id="financial_type">
-                                <label for="financial_type">Financial/Debt</label><br/>
-                            </fieldset>
-
                             <!-- Subcategories for Income -->
-                            <fieldset>
-                                <legend style="font-size: 1.02rem;">Income Category: </label><br/>
+                            <fieldset id="sub_income_modal">
+                                <legend>Income Category: </legend><br/>
 
-                                <input type="radio" value="earned" name="sub_i_type_{{forloop.counter}}" id="earned_type">
+                                <input type="radio" value="earned" name="sub_i_type" id="earned_type">
                                 <label for="earned_type">Earned</label><br/>
 
-                                <input type="radio" value="portfolio" name="sub_i_type_{{forloop.counter}}" id="portfolio_type">
+                                <input type="radio" value="portfolio" name="sub_i_type" id="portfolio_type">
                                 <label for="portfolio_type">Portfolio</label><br/>
 
-                                <input type="radio" value="passive" name="sub_i_type_{{forloop.counter}}" id="passive_type">
+                                <input type="radio" value="passive" name="sub_i_type" id="passive_type">
                                 <label for="passive_type">Passive</label>
                             </fieldset><br/>
+
+                            <!-- Optional information about your expenses (sub-category) -->
+                            <fieldset id="sub_expense_modal" disabled="true">
+                                <legend>Expense Category: </legend><br/>
+                                <input type="radio" value="food" name="sub_e_type" id="food_type">
+                                <label for="food_type">Food/Grocery</label><br/>
+
+                                <input type="radio" value="housing" name="sub_e_type" id="housing_type">
+                                <label for="housing_type">Housing/Utilities</label><br/>
+
+                                <input type="radio" value="personal" name="sub_e_type" id="personal_type">
+                                <label for="personal_type">Personal</label><br/>
+
+                                <input type="radio" value="transportation" name="sub_e_type" id="transportation_type">
+                                <label for="transportation_type">Transportation</label><br/>
+
+                                <input type="radio" value="financial" name="sub_e_type" id="financial_type">
+                                <label for="financial_type">Financial/Debt</label><br/>
+                            </fieldset><br/>
+
+
 
                         </div>
                         <div class="modal-footer">

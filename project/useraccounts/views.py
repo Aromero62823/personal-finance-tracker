@@ -122,7 +122,7 @@ def transactionView(request):
 
             transaction.save()
         except Exception as e:
-            return JsonResponse({'error': e})
+            return JsonResponse({'error': e}, status=500)
         
     return render(request, template_name='transaction.html', context={'username': request.user.username }, status=200)
 
