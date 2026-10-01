@@ -53,44 +53,40 @@ function filterMonth() {
 
 // Saving Changes of the edited information
 function submitEdits(id, counter) {
-    var data = []
-    
-    for(let x = 1; x < 6; x++) {
-        if(x == 4) {
-            let values = document.getElementsByName(`t_type_${counter}`);
-            for(let i = 0; i < values.length; i++) {
-                if (values[i].checked) {
-                    data.push(values[i].value)
-                    continue;
-                }
-            }
-        } else if (x == 5) {
-            let subs = []
-            if(data[3] == 'Income') {
-                subs = document.getElementsByName(`sub_i_type_${counter}`);
-            } else if(data[4] == 'Expense'){
-                subs = document.getElementsByName(`sub_e_type_${counter}`);
-            } else {
-                break
-            }
-            for(let i = 0;i < subs.length;i++) {
-                if (subs[i].checked) {
-                    data.push(subs[i].value)
-                }
-            }
-        } else {
-            data.push(document.getElementById(`hid-${x}_${counter}`).value);
-        }
+    // Getting the transaction type
+    let transaction_type = document.querySelector(`[name=t_type_${counter}]:checked`).value;
+
+    // Fetching the sub-transaction type
+    let subtransaction_type;
+    if(transaction_type === 'income') {
+        subtransaction_type = document.querySelector(`[name=sub_i_type_${counter}]:checked`).value;
+
+    } else {
+        subtransaction_type = document.querySelector(`[name=sub_e_type_${counter}]:checked`).value;
     }
 
-    var payload = {
-        'id': id,
-        'amount': data[0],
-        'date': data[1],
-        'message': data[2],
-        'transaction_type': data[3],
-        'subtransaction_type': data[4]
+    // Fetching the amount if typed, if the user hasn't entered anything, django will handle in the backend
+    let amount = document.getElementById(`hid-1_${counter}`).value;
+    
+    // Fetching the date, same null/None type handling at the backend
+    let date = document.getElementById(`hid-2_${counter}`).value;
+    
+    // Fetching the optional message
+    let message = document.getElementById(`hid-3_${counter}`).value;
+
+    // Fetching if the transaction is recurring or not
+    let recurring = (document.querySelector(`[name=recur_choice_${counter}]:checked`).value === 'yes');
+
+    // Fetching the recurring type, if the recurring is set to true
+    let recurring_type = 'N/A';
+    if (recurring == true) {
+        recurring_type = document.querySelector(`[name=date_type_${counter}]:checked`).value;
     }
+
+
+    // Initializing the payload in correlation to the attribute names
+    var p = {id, transaction_type, subtransaction_type, amount, date, message, recurring, recurring_type}
+
     // URL for the current window to reference for a POST request
     var curr_url = window.location.href;
 
@@ -104,7 +100,7 @@ function submitEdits(id, counter) {
             'Content-Type': 'application/json',
             'X-CSRFToken': django_token
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(p)
     })
     .then(response => response.json())
     .then(data => console.log('Message: ', data))
@@ -200,7 +196,7 @@ function submitTransaction() {
     let message = document.getElementById('message_id').value;
 
     // Initializing the Payload
-     let payload = {
+    let payload = {
         t_type,
         sub_type,
         amount,
@@ -219,5 +215,45 @@ function submitTransaction() {
         },
         body: JSON.stringify(payload)
     })
-    .then(response =>console.log(response['status']))
+    .then(response => {
+        if(response.ok) {
+            window.location.reload();
+        }
+        console.log(response.json());
+    })
+    .catch(error => console.error(error))
+}
+
+// Parameterising the modal with the checked inputs that correlate with the data
+function openModal(modalId, t_type, sub_type, recur, recur_type, counter) {
+    // Fetching/Creating the modal via bootstrap
+    let modalElement = document.getElementById(modalId);
+    const modalInstance = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+    // Parameterise the modal inputs before it is shown
+    let sub;
+    // Prechecking the transaction type based off of the db query
+    document.querySelector(`[name="t_type_${counter}"][value="${t_type}"]`).checked = true;
+
+    // Having the previous subcategory pre-checked based off of what the transaction type
+    if(t_type === 'income') {
+        sub = document.querySelector(`[name="sub_i_type_${counter}"][value="${sub_type}"]`).checked = true;
+        document.getElementById(`sub_expense_modal_${counter}`).disabled = true;
+    } else {
+        sub = document.querySelector(`[name="sub_e_type_${counter}"][value="${sub_type}"]`).checked = true;
+        document.getElementById(`sub_income_modal_${counter}`).disabled = true;
+    }
+    // Changing it to boolean format
+    recur = (recur === "True")
+
+    // Pre-checking the recur choice fields, including the type
+    if(recur === true) {
+        document.querySelector(`[name=recur_choice_${counter}][value=yes]`).checked = true;
+        document.querySelector(`[name=date_type_${counter}][value=${recur_type}]`).checked = true;
+    } else {
+        document.querySelector(`[name=recur_choice_${counter}][value=no]`).checked = true;
+        document.getElementById(`date_range_id_${counter}`).disabled = true;
+    }
+
+    // Showing the modal to the user
+    modalInstance.show();
 }

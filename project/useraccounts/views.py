@@ -126,7 +126,7 @@ def transactionView(request):
         
     return render(request, template_name='transaction.html', context={'username': request.user.username }, status=200)
 
-
+# History View, will update existing data or delete!
 @login_required
 def historyView(request):
     # Showing all the transactions(Expenses and Income) for the current month with the ability to go back in the past to fix or edit anything else.
@@ -137,17 +137,17 @@ def historyView(request):
             data = json.loads(request.body)
             transaction = models.Transaction.objects.get(id=data.get('id'))
             for key, value in data.items():
-                if key == 'id' or value == None or value.strip() == '':
+                if key == 'id' or value == None or value == '':
                     continue
                 else:
                     if key == 'amount':
-                        setattr(transaction, key, float(value))                        
+                        setattr(transaction, key, float(value))
                     else:
                         setattr(transaction, key, value)
-                    
             transaction.save()
             
         except Exception as e:
+            print(e)
             return JsonResponse(data={'error': str(e)}, status=404)
         
         return JsonResponse(data={'message':'Database updated', 'status':'success'}, status=200)
@@ -157,18 +157,5 @@ def historyView(request):
             id = json.loads(request.body)
             obj = models.Transaction.objects.get(id=id)
             obj.delete()
-
-    if request.method == "POST":
-        r_date = json.loads(request.body)
-        month = r_date.get('month')
-        year = r_date.get('year')
-        data = models.Transaction.objects.filter(user=request.user.username, date__month=month, date__year=year)
-        payload = {
-            "amount": [x.amount for x in data],
-            "date": [x.date for x in data],
-            "type": [x.transaction_type for x in data],
-            "message": [x.message for x in data]
-        }
-        return JsonResponse({'payload': payload})
 
     return render(request, template_name='history.html', context={'username': request.user.username, 'history': h_data })

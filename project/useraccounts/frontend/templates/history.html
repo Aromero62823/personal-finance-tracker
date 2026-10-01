@@ -21,7 +21,7 @@
                 <td>{{data.recurring_type}}</td>
                 <td>{{data.message}}</td>
                 <td>
-                    <button type="button" class="btn btn-warning"  onclick="openModal('edit_modal_{{forloop.counter}}', '{{data.transaction_type}}', '{{data.subtransaction_type}}')">
+                    <button type="button" class="btn btn-warning"  onclick="openModal('edit_modal_{{forloop.counter}}', '{{data.transaction_type}}', '{{data.subtransaction_type}}', '{{data.recurring}}', '{{data.recurring_type}}', '{{forloop.counter}}')">
                         Edit
                     </button>
                 </td>
@@ -48,49 +48,69 @@
                             <textarea class="form-control form-control-sm" style="visibility: hidden;" name="message_box" rows="3" placeholder="Optional Note" style="width: 75%;" id="hid-3_{{forloop.counter}}"></textarea><br>
                             
                             <fieldset>
-                                <legend for="t_type">Transaction Type: {{data.transaction_type}}</legend>
+                                <legend>Transaction Type: {{data.transaction_type}}</legend>
                                 <br/>
-                                <input type="radio" name="t_type_{{forloop.counter}}" value="Income" id="i_choice_{{forloop.counter}}">
+                                <input type="radio" name="t_type_{{forloop.counter}}" value="income" id="i_choice_{{forloop.counter}}" onclick="enableSubGroup('sub_income_modal_{{forloop.counter}}', 'sub_expense_modal_{{forloop.counter}}')">
                                 <label for="i_choice">Income</label>
-                                <input type="radio" name="t_type_{{forloop.counter}}" value="Expense" id="e_choice_{{forloop.counter}}">
+                                <input type="radio" name="t_type_{{forloop.counter}}" value="expense" id="e_choice_{{forloop.counter}}" onclick="enableSubGroup('sub_expense_modal_{{forloop.counter}}', 'sub_income_modal_{{forloop.counter}}')">
                                 <label for="e_choice">Expense</label>
                             </fieldset><br>
 
                             <p>Subcategory: {{data.subtransaction_type}}</p>
                             <!-- Subcategories for Income -->
-                            <fieldset id="sub_income_modal">
+                            <fieldset id="sub_income_modal_{{forloop.counter}}">
                                 <legend>Income Category: </legend><br/>
 
-                                <input type="radio" value="earned" name="sub_i_type" id="earned_type">
+                                <input type="radio" value="earned" name="sub_i_type_{{forloop.counter}}" id="earned_type">
                                 <label for="earned_type">Earned</label><br/>
 
-                                <input type="radio" value="portfolio" name="sub_i_type" id="portfolio_type">
+                                <input type="radio" value="portfolio" name="sub_i_type_{{forloop.counter}}" id="portfolio_type">
                                 <label for="portfolio_type">Portfolio</label><br/>
 
-                                <input type="radio" value="passive" name="sub_i_type" id="passive_type">
+                                <input type="radio" value="passive" name="sub_i_type_{{forloop.counter}}" id="passive_type">
                                 <label for="passive_type">Passive</label>
                             </fieldset><br/>
 
                             <!-- Optional information about your expenses (sub-category) -->
-                            <fieldset id="sub_expense_modal" disabled="true">
+                            <fieldset id="sub_expense_modal_{{forloop.counter}}">
                                 <legend>Expense Category: </legend><br/>
-                                <input type="radio" value="food" name="sub_e_type" id="food_type">
+                                <input type="radio" value="food" name="sub_e_type_{{forloop.counter}}" id="food_type">
                                 <label for="food_type">Food/Grocery</label><br/>
 
-                                <input type="radio" value="housing" name="sub_e_type" id="housing_type">
+                                <input type="radio" value="housing" name="sub_e_type_{{forloop.counter}}" id="housing_type">
                                 <label for="housing_type">Housing/Utilities</label><br/>
 
-                                <input type="radio" value="personal" name="sub_e_type" id="personal_type">
+                                <input type="radio" value="personal" name="sub_e_type_{{forloop.counter}}" id="personal_type">
                                 <label for="personal_type">Personal</label><br/>
 
-                                <input type="radio" value="transportation" name="sub_e_type" id="transportation_type">
+                                <input type="radio" value="transportation" name="sub_e_type_{{forloop.counter}}" id="transportation_type">
                                 <label for="transportation_type">Transportation</label><br/>
 
-                                <input type="radio" value="financial" name="sub_e_type" id="financial_type">
+                                <input type="radio" value="financial" name="sub_e_type_{{forloop.counter}}" id="financial_type">
                                 <label for="financial_type">Financial/Debt</label><br/>
                             </fieldset><br/>
+                            
+                            <!-- Determine whether or not the transaction is recurring(Monthly, weekly, daily, etc.) -->
+                            <fieldset id="recur_choice_fieldset_{{forloop.counter}}">
+                                <legend>Recurring Transaction? </legend>
+                                <input type="radio" value="yes" id="recur_yes" name="recur_choice_{{forloop.counter}}" onclick="enableRange('date_range_id_{{forloop.counter}}')">
+                                <label for="recur_yes">Yes</label>
+                                <input type="radio" value="no" id="recur_no" name="recur_choice_{{forloop.counter}}" onclick="disableRange('date_range_id_{{forloop.counter}}')">
+                                <label for="recur_no">No</labelf>
+                            </fieldset><br/>
 
-
+                            <!-- Date range via the re-incurring charge (daily, weekly, monthly, and annually) -->
+                            <fieldset id="date_range_id_{{forloop.counter}}">
+                                <legend>When is this transaction's recurrence date? </legend><br>
+                                <label for="d_val">Daily</label>
+                                <input type="radio" value="daily" name="date_type_{{forloop.counter}}" id="d_val">
+                                <label for="w_val">Weekly</label>
+                                <input type="radio" value="weekly" name="date_type_{{forloop.counter}}" id="w_val">
+                                <label for="m_val">Monthly</label>
+                                <input type="radio" value="monthly" name="date_type_{{forloop.counter}}" id="m_val">
+                                <label for="a_val">Annually</label>
+                                <input type="radio" value="annually" name="date_type_{{forloop.counter}}" id="a_val">
+                            </fieldset><br/>
 
                         </div>
                         <div class="modal-footer">

@@ -31,7 +31,8 @@ class Transaction(models.Model):
         ('daily', 'Daily'),
         ('weekly', 'Weekly'),
         ('monthly', 'Monthly'),
-        ('annually', 'Annually')
+        ('annually', 'Annually'),
+        ('n/a', 'N/A')
     ]
     
     transaction_type = models.CharField(max_length=7, null=False, choices=transaction_choices, default='income')
