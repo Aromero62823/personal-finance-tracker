@@ -6,12 +6,71 @@
     <b>Financial Statistics for: <span id="home_header">Ongoing Total</span></b>
 </h4>
 <br>
-
+<!-- Date input field to change the pie chart -->
 <form method="POST" style="margin-left: 3%;">
     {% csrf_token %}
     <label for='date_choice'><h6>Choose Month/Year:  </h6></label>
     <input type="month" onchange="filterMonth()" id="date_choice">
-</form>
+</form><br/>
+
+<!-- Total Amount Information based off of Categories(Income/Expense) -->
+<table class="table table-dark">
+    <thead>
+        <tr>
+            <th>Total Income</th> <th>Total Expense</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td id="income-total">No data</td> <td id="expense-total">No data</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Income Subcategory Table (by Cateogory)-->
+<h6>Income SubCategory Weight Information by Income</h6>
+<table class="table table-dark">
+    <thead>
+        <tr>
+            <th>Earned</th> <th>Portfolio</th> <th>Passive</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td id="income-sub1">No data</td> <td id="income-sub2">No data</td> <td id="income-sub3">No data</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Expense Subcategory Table -->
+<h6>Expense SubCategory Weight Information By Expense</h6>
+<table class="table table-dark">
+    <thead>
+        <tr>
+            <th>Personal</th> <th>Housing</th> <th>Food</th> <th>Transportation</th> <th>Financial</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td id="expense-sub1">No data</td> <td id="expense-sub2">No data</td> <td id="expense-sub3">No data</td> <td id="expense-sub4">No data</td> <td id="expense-sub5">No data</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Income Subcategory Table (by Cateogory)-->
+<h6>SubCategory Weight Information by Total</h6>
+<table class="table table-dark">
+    <thead>
+        <tr>
+            <th>Earned</th> <th>Portfolio</th> <th>Passive</th> <th>Personal</th> <th>Housing</th> <th>Food</th> <th>Transportation</th> <th>Financial</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td id="sub1">No data</td> <td id="sub2">No data</td> <td id="sub3">No data</td> <td id="sub4">No data</td> <td id="sub5">No data</td> <td id="sub6">No data</td> <td id="sub7">No data</td> <td id="sub8">No data</td>
+        </tr>
+    </tbody>
+</table>
 
 <!-- Displaying the Plot  -->
 <div class="graph-container">
@@ -19,7 +78,6 @@
         {{ plot|safe }}
     </div>
 </div>
-
 {% else %}
 
 <p style="display: flex; position: relative; justify-self: center; margin-top: 5%;">

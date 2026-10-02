@@ -1,5 +1,51 @@
 // Array for the filterMonth() functions
-const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+// Fetching data via the API (expense)
+fetch('/api/totalExpense/')
+.then(response => response.json())
+.then(data => {
+    document.getElementById('expense-total').innerHTML = data['total expense'] + '$';
+});
+
+// fetching data via the API (income)
+fetch('/api/totalIncome/')
+.then(response => response.json())
+.then(data => {
+    document.getElementById('income-total').innerHTML = data['total income'] + '$';
+});
+
+// fetching weight data via subcategories
+fetch('/api/subWeights')
+.then(response => response.json())
+.then(data => {
+    data = data['subweights']
+    // Income categories
+    document.getElementById('income-sub1').innerHTML = data['earned'][0]+'%';
+    document.getElementById('income-sub2').innerHTML = data['portfolio'][0]+'%';
+    document.getElementById('income-sub3').innerHTML = data['passive'][0]+'%';
+
+    // Expense Category
+    document.getElementById('expense-sub1').innerHTML = data['personal'][0]+'%';
+    document.getElementById('expense-sub2').innerHTML = data['housing'][0]+'%';
+    document.getElementById('expense-sub3').innerHTML = data['food'][0]+'%';
+    document.getElementById('expense-sub4').innerHTML = data['transportation'][0]+'%';
+    document.getElementById('expense-sub5').innerHTML = data['financial'][0]+'%';
+
+    // Subcategory percentage based off of total
+    document.getElementById('sub1').innerHTML = data['earned'][1] + '%';
+        document.getElementById('sub1').innerHTML = data['earned'][1] + '%';
+        document.getElementById('sub2').innerHTML = data['portfolio'][1] + '%';
+        document.getElementById('sub3').innerHTML = data['passive'][1] + '%';
+        document.getElementById('sub4').innerHTML = data['personal'][1] + '%';
+        document.getElementById('sub5').innerHTML = data['housing'][1] + '%';
+        document.getElementById('sub6').innerHTML = data['food'][1] + '%';
+        document.getElementById('sub7').innerHTML = data['transportation'][1] + '%';
+        document.getElementById('sub8').innerHTML = data['financial'][1] + '%';
+
+
+
+})
 
 // function for the homepage plot - Specifically, filtering month/year
 function filterMonth() {
@@ -257,3 +303,6 @@ function openModal(modalId, t_type, sub_type, recur, recur_type, counter) {
     // Showing the modal to the user
     modalInstance.show();
 }
+
+
+
