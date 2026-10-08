@@ -1,39 +1,42 @@
 // Array for the filterMonth() functions
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-// Fetching data via the API (expense)
-fetch('/api/totalExpense/')
-.then(response => response.json())
-.then(data => {
-    document.getElementById('expense-total').innerHTML = data['total expense'] + '$';
-});
 
-// fetching data via the API (income)
-fetch('/api/totalIncome/')
-.then(response => response.json())
-.then(data => {
-    document.getElementById('income-total').innerHTML = data['total income'] + '$';
-});
+// fetching weight data via subcategories, income and expense total, in order to display on the Homepage
+function apiCall() {
+    // Fetching the Income and initializing the value
+    fetch('/api/totalIncome/')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('income-total').innerHTML = data['total income'] + '$';
+    });
 
-// fetching weight data via subcategories
-fetch('/api/subWeights')
-.then(response => response.json())
-.then(data => {
-    data = data['subweights']
-    // Income categories
-    document.getElementById('income-sub1').innerHTML = data['earned'][0]+'%';
-    document.getElementById('income-sub2').innerHTML = data['portfolio'][0]+'%';
-    document.getElementById('income-sub3').innerHTML = data['passive'][0]+'%';
+    // Fetching the Expense
+    fetch('/api/totalExpense/')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('expense-total').innerHTML = data['total expense'] + '$';
+    });
 
-    // Expense Category
-    document.getElementById('expense-sub1').innerHTML = data['personal'][0]+'%';
-    document.getElementById('expense-sub2').innerHTML = data['housing'][0]+'%';
-    document.getElementById('expense-sub3').innerHTML = data['food'][0]+'%';
-    document.getElementById('expense-sub4').innerHTML = data['transportation'][0]+'%';
-    document.getElementById('expense-sub5').innerHTML = data['financial'][0]+'%';
+    // Fetchign the sub category weights
+    fetch('/api/subWeights')
+    .then(response => response.json())
+    .then(data => {
+        data = data['subweights']
+        // Income categories
+        document.getElementById('income-sub1').innerHTML = data['earned'][0]+'%';
+        document.getElementById('income-sub2').innerHTML = data['portfolio'][0]+'%';
+        document.getElementById('income-sub3').innerHTML = data['passive'][0]+'%';
 
-    // Subcategory percentage based off of total
-    document.getElementById('sub1').innerHTML = data['earned'][1] + '%';
+        // Expense Category
+        document.getElementById('expense-sub1').innerHTML = data['personal'][0]+'%';
+        document.getElementById('expense-sub2').innerHTML = data['housing'][0]+'%';
+        document.getElementById('expense-sub3').innerHTML = data['food'][0]+'%';
+        document.getElementById('expense-sub4').innerHTML = data['transportation'][0]+'%';
+        document.getElementById('expense-sub5').innerHTML = data['financial'][0]+'%';
+
+        // Subcategory percentage based off of total
+        document.getElementById('sub1').innerHTML = data['earned'][1] + '%';
         document.getElementById('sub1').innerHTML = data['earned'][1] + '%';
         document.getElementById('sub2').innerHTML = data['portfolio'][1] + '%';
         document.getElementById('sub3').innerHTML = data['passive'][1] + '%';
@@ -42,13 +45,13 @@ fetch('/api/subWeights')
         document.getElementById('sub6').innerHTML = data['food'][1] + '%';
         document.getElementById('sub7').innerHTML = data['transportation'][1] + '%';
         document.getElementById('sub8').innerHTML = data['financial'][1] + '%';
+    });
+}
 
-
-
-})
+apiCall();
 
 // function for the homepage plot - Specifically, filtering month/year
-function filterMonth() {
+async function filterMonth() {
     // Extracting values from DOM and parsed Date object
     var plot = document.getElementById('plot_graph');
     var date_val = document.getElementById('date_choice').value;
@@ -58,43 +61,84 @@ function filterMonth() {
     var month = date.getUTCMonth();
     year=date.getFullYear();
 
-    fetch(
-        window.location.href, {
-            method: 'POST',
-            headers : {
-                'Content-Type': 'application/json',
-                'X-CSRFTOKEN': djangotoken
-            },
-            body: JSON.stringify({'month': month+1, 'year': year})
+    try {
+        fetch(
+            window.location.href, {
+                method: 'POST',
+                headers : {
+                    'Content-Type': 'application/json',
+                    'X-CSRFTOKEN': djangotoken
+                },
+                body: JSON.stringify({'month': month+1, 'year': year})
+            }
+        )
+        .then(response => response.json())
+        .then(data => {
+            let vals = [{
+                values: data.amount,
+                labels: data.type,
+                type: 'pie',
+                color: data.type,
+                textinfo: 'label+percent'
+            }]
+            // From the internet, to have a consistent color palette
+            let layout = {
+                colorway: [
+                    '#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', 
+                    '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECb52'
+                ],
+                title: {
+                    text: 'Expenses vs Income',
+                    xref:'paper',
+                    x: 0.008
+                }
+            }
+            Plotly.newPlot(plot, vals, layout);
+            document.getElementById('home_header').innerHTML = `${months[month]} ${year}`;
+        })
+        .catch(error => console.log(`Error: ${error}`));
+    } catch(error) {
+        console.error(error);
+    }
+
+    // Calling the API in order to get data via the month and year value
+    fetch(`/api/fetchMonthData/?month=${month+1}&year=${year}`, {
+        method: 'GET', 
+        headers: {
+            'Content-Type':'application/json',
+            'X-CSRFToken': djangotoken
         }
-    )
+    })
     .then(response => response.json())
     .then(data => {
-        let vals = [{
-            values: data.amount,
-            labels: data.type,
-            type: 'pie',
-            color: data.type,
-            textinfo: 'label+percent'
-        }]
-        // From the internet, to have a consistent color palette
-        let layout = {
-            colorway: [
-                '#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', 
-                '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECb52'
-            ],
-            title: {
-                text: 'Expenses vs Income',
-                xref:'paper',
-                x: 0.008
-            }
-        }
-        Plotly.newPlot(plot, vals, layout);
-        document.getElementById('home_header').innerHTML = `${months[month]} ${year}`;
-    })
-    .catch(error => console.log(`Error: ${error}`))
+        // Displaying the income/expense total for that month
+        document.getElementById('income-total').innerHTML = data['income'] + '$';
+        document.getElementById('expense-total').innerHTML = data['expense'] + '$';
+        
+        sub = data['sub_weight']
+        // Income categories
+        document.getElementById('income-sub1').innerHTML = sub['earned'][0]+'%';
+        document.getElementById('income-sub2').innerHTML = sub['portfolio'][0]+'%';
+        document.getElementById('income-sub3').innerHTML = sub['passive'][0]+'%';
 
-    
+        // Expense Category
+        document.getElementById('expense-sub1').innerHTML = sub['personal'][0]+'%';
+        document.getElementById('expense-sub2').innerHTML = sub['housing'][0]+'%';
+        document.getElementById('expense-sub3').innerHTML = sub['food'][0]+'%';
+        document.getElementById('expense-sub4').innerHTML = sub['transportation'][0]+'%';
+        document.getElementById('expense-sub5').innerHTML = sub['financial'][0]+'%';
+
+        // Subcategory percentage based off of total
+        document.getElementById('sub1').innerHTML = sub['earned'][1] + '%';
+        document.getElementById('sub1').innerHTML = sub['earned'][1] + '%';
+        document.getElementById('sub2').innerHTML = sub['portfolio'][1] + '%';
+        document.getElementById('sub3').innerHTML = sub['passive'][1] + '%';
+        document.getElementById('sub4').innerHTML = sub['personal'][1] + '%';
+        document.getElementById('sub5').innerHTML = sub['housing'][1] + '%';
+        document.getElementById('sub6').innerHTML = sub['food'][1] + '%';
+        document.getElementById('sub7').innerHTML = sub['transportation'][1] + '%';
+        document.getElementById('sub8').innerHTML = sub['financial'][1] + '%';
+    });    
 }
 
 // Saving Changes of the edited information
@@ -303,6 +347,3 @@ function openModal(modalId, t_type, sub_type, recur, recur_type, counter) {
     // Showing the modal to the user
     modalInstance.show();
 }
-
-
-

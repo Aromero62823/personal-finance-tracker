@@ -26,7 +26,7 @@ class Transaction(models.Model):
         ('passive', 'Passive')
     ]
 
-    # valid ranges for recurring transactions
+    # valid ranges for recurring transactions (Future API integration feature!)
     date_ranges = [
         ('daily', 'Daily'),
         ('weekly', 'Weekly'),
