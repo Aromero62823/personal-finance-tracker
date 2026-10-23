@@ -46,6 +46,15 @@ function apiCall() {
         document.getElementById('sub7').innerHTML = data['transportation'][1] + '%';
         document.getElementById('sub8').innerHTML = data['financial'][1] + '%';
     });
+
+    // Fetching the API in charge of the KMean Algorithm Insights
+    fetch('/api/fetchTransactionInsights/', {
+        method: "GET"
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('exp-ins1').innerHTML = data['small']['amount'] + '$';
+    })
 }
 
 apiCall();

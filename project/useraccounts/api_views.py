@@ -1,6 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from . import models
+from sklearn.cluster import KMeans
+import numpy as np
 
 # Helper function to return the total in correspondence to the attribute specified
 def get_total(attr, data):
@@ -95,3 +97,63 @@ def filter_by_month(request):
         'expense': expense_total,
         'sub_weight': sub
     })
+
+
+# K-means algorithm via a GET Request
+@api_view(['GET'])
+def fetchTransactionInsights(request):
+    # Retreiving all data pertaining the user
+    data = models.Transaction.objects.filter(user=request.user.username, transaction_type='expense')
+
+    # Extracting values from the filtered data
+    data_values = [{'id':x.id, 'amount': x.amount, 'month': x.date.month, 'transaction_type': x.transaction_type, 'sub_type': x.subtransaction_type} for x in data]
+
+    # Implementing the K-means algorithm
+    kmeans = KMeans(n_clusters=3, random_state=42)
+
+    # Values based off of the month(as an int) and the amount(float)
+    X = np.array([[r['amount']] for r in data_values])
+
+    # Fits the data and gather the centroids in correspondence to the number of clusters
+    kmeans.fit(X)
+    centroids = kmeans.cluster_centers_
+    ranks = sorted(range(3), key=lambda i: centroids[i])
+    cluster_group = {ranks[0]: 'small', ranks[1]: 'medium', ranks[2]: 'large'}
+    labels = kmeans.labels_
+
+    # Categorizing the clusters based off of the amount closest to the centroid via label
+    for i, entry in enumerate(data_values):
+        entry['cluster'] = cluster_group[labels[i]]
+
+    # Creating a summary to send to the frontend and display the user the output of the kmeans via the user's expenses
+    s_transaction = [x for x in data_values if x['cluster'] == 'small']
+    m_transaction = [x for x in data_values if x['cluster'] == 'medium']
+    l_transaction = [x for x in data_values if x['cluster'] == 'large']
+    # Fetching the sum to find the percentage via the amount to the total
+    total = sum([e.amount for e in data])
+
+    small = {
+        'size': 'Small',
+        'instances': len(s_transaction),
+        'amount': sum(s['amount'] for s in s_transaction),
+        'center': centroids[ranks[0]],
+        'percent': round(sum([s['amount'] for s in s_transaction])/total, 2)
+    }
+
+    medium = {
+        'size': 'Medium',
+        'instances': len(m_transaction),
+        'amount': sum(m['amount'] for m in m_transaction),
+        'center': centroids[ranks[1]],
+        'percent': round(sum([m['amount'] for m in m_transaction])/total, 2)
+    }
+
+    large = {
+        'size': 'Large',
+        'instances': len(l_transaction),
+        'amount': sum(l['amount'] for l in l_transaction),
+        'center': centroids[ranks[2]],
+        'percent': round(sum([l['amount'] for l in l_transaction])/total, 2)
+    }
+
+    return Response({'small': small, 'medium': medium, 'large': large})
