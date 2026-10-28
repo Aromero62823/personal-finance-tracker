@@ -1,7 +1,6 @@
 // Array for the filterMonth() functions
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-
 // fetching weight data via subcategories, income and expense total, in order to display on the Homepage
 function apiCall() {
     // Fetching the Income and initializing the value
@@ -19,7 +18,7 @@ function apiCall() {
     });
 
     // Fetchign the sub category weights
-    fetch('/api/subWeights')
+    fetch('/api/subWeights/')
     .then(response => response.json())
     .then(data => {
         data = data['subweights']
@@ -48,16 +47,29 @@ function apiCall() {
     });
 
     // Fetching the API in charge of the KMean Algorithm Insights
-    fetch('/api/fetchTransactionInsights/', {
-        method: "GET"
-    })
+    fetch('/api/fetchTransactionInsights/')
     .then(response => response.json())
     .then(data => {
-        document.getElementById('exp-ins1').innerHTML = data['small']['amount'] + '$';
+        let sizes = ['small_', 'medium_', 'large_'];
+        let attrs = ['center', 'instances', 'percent', 'amount'];
+        let symbols = ['$', '', '%', '$']
+        let counter = 0;
+
+        // Using for-loops to paramaterize 
+        for(let i = 0;i < 3; i++) {
+            for(let j = 0;j < 4;j++) {
+                counter++;
+                document.getElementById(`exp-ins${counter}`).innerHTML = data[sizes[i]+'exp'][attrs[j]] > 0 ? data[sizes[i]+'exp'][attrs[j]] + symbols[j] : 'N/A';
+                document.getElementById(`inc-ins${counter}`).innerHTML = data[sizes[i]+'inc'][attrs[j]] > 0 ? data[sizes[i]+'inc'][attrs[j]] + symbols[j] : 'N/A';
+            }
+        }
     })
 }
 
-apiCall();
+// Calling the function to execute the api if the current URL is the homepage (dashboard)
+if(window.location.pathname == '/home/') {
+    apiCall();
+}
 
 // function for the homepage plot - Specifically, filtering month/year
 async function filterMonth() {
@@ -65,7 +77,8 @@ async function filterMonth() {
     var plot = document.getElementById('plot_graph');
     var date_val = document.getElementById('date_choice').value;
     var djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    // Extracting the Date value as an object to extract month and year values 
+
+    // Extracting the Date value as an object to extract month and year values  
     var date = new Date(Date.parse(date_val));
     var month = date.getUTCMonth();
     year=date.getFullYear();
@@ -73,7 +86,7 @@ async function filterMonth() {
     try {
         fetch(
             window.location.href, {
-                method: 'POST',
+                method: 'PUT',
                 headers : {
                     'Content-Type': 'application/json',
                     'X-CSRFTOKEN': djangotoken
@@ -147,7 +160,34 @@ async function filterMonth() {
         document.getElementById('sub6').innerHTML = sub['food'][1] + '%';
         document.getElementById('sub7').innerHTML = sub['transportation'][1] + '%';
         document.getElementById('sub8').innerHTML = sub['financial'][1] + '%';
-    });    
+
+
+        // Calling the REST API in accordance to the Selected Month
+        fetch('/api/fetchTransactionInsights/', {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': djangotoken
+            },
+            body: JSON.stringify({'month': month+1})
+        })
+        .then(response => response.json())
+        .then(data => {
+            let sizes = ['small_', 'medium_', 'large_'];
+            let attrs = ['center', 'instances', 'percent', 'amount'];
+            let symbols = ['$', '', '%', '$']
+            let counter = 0;
+
+            // Using for-loops to paramaterize 
+            for(let i = 0;i < 3; i++) {
+                for(let j = 0;j < 4;j++) {
+                    counter++;
+                    document.getElementById(`exp-ins${counter}`).innerHTML = data[sizes[i]+'exp'][attrs[j]] > 0 ? data[sizes[i]+'exp'][attrs[j]] + symbols[j] : 'N/A';
+                    document.getElementById(`inc-ins${counter}`).innerHTML = data[sizes[i]+'inc'][attrs[j]] > 0 ? data[sizes[i]+'inc'][attrs[j]] + symbols[j] : 'N/A';
+                }
+            }
+        })
+    });
 }
 
 // Saving Changes of the edited information
@@ -316,11 +356,13 @@ function submitTransaction() {
     })
     .then(response => {
         if(response.ok) {
+            alert("Transaction Successfully submitted!");
             window.location.reload();
+        } else {
+            alert("Error, please complete all necessary fields before submitting!");
         }
         console.log(response.json());
     })
-    .catch(error => console.error(error))
 }
 
 // Parameterising the modal with the checked inputs that correlate with the data

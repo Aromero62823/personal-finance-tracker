@@ -83,16 +83,19 @@ def get_plot(transactions):
 # Creating a simple plot to output to the html homepage
 @login_required
 def homepage(request):
-    if request.method == "POST":
-            data = json.loads(request.body)
-            month = data.get('month')
-            year = data.get('year')
-            transactions = models.Transaction.objects.filter(user=request.user.username, date__month=month, date__year=year)
-            amount = [x.amount for x in transactions]
-            type = [y.transaction_type for y in transactions]
-            return JsonResponse({'amount': amount, 'type' : type})
+    # Put request because we are replacing an existing element via given parameters
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        month = data.get('month')
+        year = data.get('year')
+        transactions = models.Transaction.objects.filter(user=request.user.username, date__month=month, date__year=year)
+        amount = [x.amount for x in transactions]
+        type = [y.transaction_type for y in transactions]
+        return JsonResponse({'amount': amount, 'type' : type})
+    
     # Retrieving data for the current month
     date = datetime.now()
+
     # Query all data pertaining to the user
     transactions = models.Transaction.objects.filter(user=request.user.username)
     curr_date = date.strftime('%B %Y')

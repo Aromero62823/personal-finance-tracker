@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from . import models
 from sklearn.cluster import KMeans
 import numpy as np
+import json
 
 # Helper function to return the total in correspondence to the attribute specified
 def get_total(attr, data):
@@ -98,13 +99,55 @@ def filter_by_month(request):
         'sub_weight': sub
     })
 
-
 # K-means algorithm via a GET Request
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 def fetchTransactionInsights(request):
     # Retreiving all data pertaining the user
-    data = models.Transaction.objects.filter(user=request.user.username, transaction_type='expense')
+    data = models.Transaction.objects.filter(user=request.user.username)
+    if request.method == 'PUT':
+        body = json.loads(request.body)
+        data = data.filter(date__month=body.get('month'))
 
+    # Sending to the helper function    
+    small_exp, medium_exp, large_exp = insightHelperFunction(type='expense', data=data)
+    small_inc, medium_inc, large_inc = insightHelperFunction(type='income', data=data)
+
+    return Response(
+        {'small_exp': small_exp, 'medium_exp': medium_exp, 'large_exp': large_exp, 'small_inc': small_inc, 'medium_inc': medium_inc, 'large_inc': large_inc}
+    )
+
+def insightHelperFunction(type, data):
+    # Filter the data via the type
+    data = data.filter(transaction_type=type)
+
+    # Instantiating the payloads beforehand to help with error handling
+    small = {
+        'size': 'Small',
+        'instances': 'N/A',
+        'amount': 'N/A',
+        'center': 'N/A',
+        'percent': 'N/A'
+    }
+
+    medium = {
+        'size': 'Medium',
+        'instances': None,
+        'amount': None,
+        'center': None,
+        'percent': None
+    }
+
+    large = {
+        'size': 'Large',
+        'instances': None,
+        'amount': None,
+        'center': None,
+        'percent': None
+    }
+
+    if len(data) < 3:
+        return small, medium, large
+    
     # Extracting values from the filtered data
     data_values = [{'id':x.id, 'amount': x.amount, 'month': x.date.month, 'transaction_type': x.transaction_type, 'sub_type': x.subtransaction_type} for x in data]
 
@@ -137,7 +180,7 @@ def fetchTransactionInsights(request):
         'instances': len(s_transaction),
         'amount': sum(s['amount'] for s in s_transaction),
         'center': centroids[ranks[0]],
-        'percent': round(sum([s['amount'] for s in s_transaction])/total, 2)
+        'percent': round(sum([s['amount'] for s in s_transaction])/total * 100, 2)
     }
 
     medium = {
@@ -145,7 +188,7 @@ def fetchTransactionInsights(request):
         'instances': len(m_transaction),
         'amount': sum(m['amount'] for m in m_transaction),
         'center': centroids[ranks[1]],
-        'percent': round(sum([m['amount'] for m in m_transaction])/total, 2)
+        'percent': round(sum([m['amount'] for m in m_transaction])/total * 100, 2)
     }
 
     large = {
@@ -153,7 +196,7 @@ def fetchTransactionInsights(request):
         'instances': len(l_transaction),
         'amount': sum(l['amount'] for l in l_transaction),
         'center': centroids[ranks[2]],
-        'percent': round(sum([l['amount'] for l in l_transaction])/total, 2)
+        'percent': round(sum([l['amount'] for l in l_transaction])/total * 100, 2)
     }
 
-    return Response({'small': small, 'medium': medium, 'large': large})
+    return small, medium, large

@@ -67,7 +67,7 @@
         <fieldset id="date_range_id" disabled="true">
             <legend>When is this transaction's recurrence date? </legend><br>
             <label for="d_val">Daily</label>
-            <input type="radio" value="daily" name="date_type" id="d_val">
+            <input type="radio" value="daily" name="date_type" id="d_val" checked>
             <label for="w_val">Weekly</label>
             <input type="radio" value="weekly" name="date_type" id="w_val">
             <label for="m_val">Monthly</label>
@@ -77,7 +77,7 @@
         </fieldset><br/>
 
         <!-- Leaving a message describing the transaction in much more detail -->
-        <label for="message_id" class="form-label">Message: </label>
+        <label for="message_id" class="form-label">Message: (Optional)</label>
         <textarea class="form-control form-control-sm" name="message" id="message_id" rows="3" placeholder="Optional Note" style="width: 75%;"></textarea><br>
         
         <!-- Button that will reload the page when the HTTP status code returns  200, else it would just stay on this page. -->
