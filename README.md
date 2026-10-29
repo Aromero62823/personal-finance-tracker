@@ -23,10 +23,11 @@ I think financial stability is an essential step for anyone wanting to become re
   4. Run command in terminal: pip install -r requirements.txt ---> This will install all necessary python packages
   5. Run command: npm install ---> This will install all necessary js packages
   6. cd into the main project/ folder
-  7. Run command: python manage.py makemigrations ---> will create the migrations folder to perform migration
+  7. Run command: python manage.py makemigrations useraccounts ---> will create the migrations folder to perform migration and including all models in the useraccounts/ directory
   8. Run command: python manage.py migrate ---> will migrate all models and translate them into a SQLite3 database(especially from the app/ directory)
-  9. Run command: python manage.py runserver ---> this will start the web server on port 8000 on your local machine
-  10. On your preferred web browser, go to: localhost:8000/
+  9. Run command: python manage.py collectstatic --noinput ----> migrate all static folders/files into a static/ folder directory
+  10. Run command: python manage.py runserver ---> this will start the web server on port 8000 on your local machine
+  11. On your preferred web browser, go to: localhost:8000/  (Note: You may disable or enable debug in the settings.py file in the config/ folder)
 
 ### While in the application:
   1. Register if you do not have an account ---> first and last name aren't required but password and username are!
@@ -38,15 +39,25 @@ I think financial stability is an essential step for anyone wanting to become re
 
 ### Pages:
   Home: Displays a graph that reflects your total transactions, Empty if no transactions are entered by the user(new user or filtered to a date where no transactions correlate to that date(month/year))
-<img width="1855" height="793" alt="home_filled" src="https://github.com/user-attachments/assets/0ce60bde-1716-4cbe-9878-9e1b0a60f711" />
+<img width="1830" height="947" alt="homepage_dashboard" src="https://github.com/user-attachments/assets/3c1eb643-1b8e-46d6-8696-f185ec734fad" />
 
   Add a Transaction: Add a transaction by; specifying type(Income/Expense), Amount, Date of transaction, and an optional message.
-<img width="1847" height="811" alt="transaction" src="https://github.com/user-attachments/assets/76d0d1a3-1af0-4767-b880-c95c5be9f72d" />
+<img width="1205" height="932" alt="transaction_page" src="https://github.com/user-attachments/assets/93de8089-cb0d-41b9-94fb-a089f1306d7e" />
 
   History: Where you may edit previous, view total, or delete transactions.
-<img width="1851" height="650" alt="history_filled" src="https://github.com/user-attachments/assets/0fd9ed68-27cf-40ee-8346-718feb982332" />
-<img width="1858" height="876" alt="history_edit" src="https://github.com/user-attachments/assets/64e018b5-d9dd-4a5b-a6a7-93cb6aa573b9" />
+<img width="1835" height="522" alt="history_page" src="https://github.com/user-attachments/assets/e929b085-360b-418e-9d6e-2c49d65bee63" />
+<img width="1190" height="917" alt="history_edit_modal" src="https://github.com/user-attachments/assets/47661b0f-df73-413e-9d47-d131eb3262a6" />
 
+
+## API Endpoints
+I've added my own REST API in order to retrieve certain values pertaining to the transaction data that the user has entered into the database. This provides the user with valuable information in correspondence to their data via entered transactions to spot trends and patterns.
+Endpoints: 
+  - subWeights/ -> retrieves the sub-category weights in correspondence to the income, expense, and grand total in reference to their own value as a dictionary
+  - totalIncome/ -> retrieves the total amount of transactions categorized as income
+  - totalExpense/ -> retrieves the total amount of transactions caegorized as expense
+  - fetchTransactionInsights/ -> uses a K-Means algorithm and retrieves values and sorts them via their centroid's value and ranks them to return a dictionary of values that pertain to the output of the K-Means algorithm, such as; size (ranked and ordered via cluster group), instances(count), center (centroid value), percentage(percent of sub-category in reference to the main category value), and amount(sum of all same-cluster values).
+
+NOTE: These values are retrieved on the HomePage via the dashboard. The user may filter the data to a specific date via the date input at the top of the page. If you would like to test the API with certain values, you may update the tests.py file in the 'useraccounts/' directory. After, run 'python manage.py test' to run assertion test cases.
   
 ## Where to get help and provide feedback
 Help/Feedback:
