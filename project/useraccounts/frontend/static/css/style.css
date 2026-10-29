@@ -43,3 +43,7 @@ a:hover {
     justify-self: center;
     justify-content: center;
 }
+
+legend {
+    font-size: 1.02rem;
+}

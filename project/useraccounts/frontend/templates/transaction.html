@@ -2,27 +2,86 @@
 {% block main_content %}
 <div class="container px-0 p-4 my-4 bg-light border">
     <form method="POST" style="display: flexbox; justify-self: center; justify-content: center;" autocomplete="off" id="transaction_form">
-        {% csrf_token %}
         <h4>Transaction Information</h4><br>
+        {% csrf_token %}
+        <!-- Identifying the type of transaction (Expense/Income) -->
         <fieldset>
-            <label for="t_type">Transaction Type:</label>
-            <br/>
-            <input type="radio" name="t_type" value="Income">
+            <legend>Type: </legend>
+            <input type="radio" name="t_type" value="income" id="i_choice" onclick="enableSubGroup('sub_income', 'sub_expense')" checked>
             <label for="i_choice">Income</label>
-            <input type="radio" name="t_type" value="Expense">
+            <input type="radio" name="t_type" value="expense" id="e_choice" onclick="enableSubGroup('sub_expense', 'sub_income')">
             <label for="e_choice">Expense</label>
-        </fieldset><br>
+        </fieldset><br/>
 
-        <label for="amount">Transaction Amount: </label><br>
-        <input type="number" name="amount" placeholder="Amount"><br><br>
+        <!-- Subcategories for Income -->
+        <fieldset id="sub_income">
+            <legend>Income Category: </legend><br/>
 
-        <label for="date">Date: </label><br>
-        <input type="date" name="date"><br/><br>
+            <input type="radio" value="earned" name="sub_i_type" id="earned_type" checked>
+            <label for="earned_type">Earned</label><br/>
 
-        <label for="message_box" class="form-label">Message: </label>
-        <textarea class="form-control form-control-sm" name="message_box" rows="3" placeholder="Optional Note" style="width: 75%;"></textarea><br>
+            <input type="radio" value="portfolio" name="sub_i_type" id="portfolio_type">
+            <label for="portfolio_type">Portfolio</label><br/>
+
+            <input type="radio" value="passive" name="sub_i_type" id="passive_type">
+            <label for="passive_type">Passive</label>
+        </fieldset><br/>
+
+        <!-- Optional information about your expenses (sub-category) -->
+        <fieldset id="sub_expense" disabled="true">
+            <legend>Expense Category: </legend><br/>
+            <input type="radio" value="food" name="sub_e_type" id="food_type" checked>
+            <label for="food_type">Food/Grocery</label><br/>
+
+            <input type="radio" value="housing" name="sub_e_type" id="housing_type">
+            <label for="housing_type">Housing/Utilities</label><br/>
+
+            <input type="radio" value="personal" name="sub_e_type" id="personal_type">
+            <label for="personal_type">Personal</label><br/>
+
+            <input type="radio" value="transportation" name="sub_e_type" id="transportation_type">
+            <label for="transportation_type">Transportation</label><br/>
+
+            <input type="radio" value="financial" name="sub_e_type" id="financial_type">
+            <label for="financial_type">Financial/Debt</label><br/>
+        </fieldset><br/>
+
+        <!-- Amount of the transaction (Required) -->
+        <label for="amount_id">Transaction Amount: </label><br>
+        <input type="number" name="amount" id="amount_id" placeholder="Amount" required><br><br>
+
+        <!-- The Date of the transaction (Required) -->
+        <label for="date_id">Date of Transaction: </label><br>
+        <input type="date" name="date" id="date_id" required><br/><br>
+
+        <!-- Determine whether or not the transaction is recurring(Monthly, weekly, daily, etc.) -->
+        <fieldset id="recur_choice_fieldset">
+            <legend>Recurring Transaction? </legend>
+            <input type="radio" value="yes" id="recur_yes" name="recur_choice" onclick="enableRange('date_range_id')">
+            <label for="recur_yes">Yes</label>
+            <input type="radio" value="no" id="recur_no" name="recur_choice" onclick="disableRange('date_range_id')" checked>
+            <label for="recur_no">No</labelf>
+        </fieldset><br/>
+
+        <!-- Date range via the re-incurring charge (daily, weekly, monthly, and annually) -->
+        <fieldset id="date_range_id" disabled="true">
+            <legend>When is this transaction's recurrence date? </legend><br>
+            <label for="d_val">Daily</label>
+            <input type="radio" value="daily" name="date_type" id="d_val" checked>
+            <label for="w_val">Weekly</label>
+            <input type="radio" value="weekly" name="date_type" id="w_val">
+            <label for="m_val">Monthly</label>
+            <input type="radio" value="monthly" name="date_type" id="m_val">
+            <label for="a_val">Annually</label>
+            <input type="radio" value="annually" name="date_type" id="a_val">
+        </fieldset><br/>
+
+        <!-- Leaving a message describing the transaction in much more detail -->
+        <label for="message_id" class="form-label">Message: (Optional)</label>
+        <textarea class="form-control form-control-sm" name="message" id="message_id" rows="3" placeholder="Optional Note" style="width: 75%;"></textarea><br>
         
-        <input type="submit" class="btn btn-primary" placeholder="Submit" onclick="submitTransaction()">
+        <!-- Button that will reload the page when the HTTP status code returns  200, else it would just stay on this page. -->
+        <button type="button" class="btn btn-primary" onclick="submitTransaction()">Submit</button>
     </form>
 </div>
 {% endblock %}

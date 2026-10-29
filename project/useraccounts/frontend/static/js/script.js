@@ -1,5 +1,67 @@
 // Array for the filterMonth() functions
-const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+// fetching weight data via subcategories, income and expense total, in order to display on the Homepage
+function apiCall() {
+    // Fetching the Income and initializing the value
+    fetch('/api/totalIncome/')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('income-total').innerHTML = data['total income'] + '$';
+    });
+
+    // Fetching the Expense
+    fetch('/api/totalExpense/')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('expense-total').innerHTML = data['total expense'] + '$';
+    });
+
+    // Fetching the sub category weights
+    fetch('/api/subWeights/')
+    .then(response => response.json())
+    .then(data => {
+        // Instantiating variables before for-loop execution to paramaterize values
+        let sub = data['sub_weight'];
+        let sub_cats = ['earned', 'portfolio', 'passive', 'personal', 'housing','food', 'transportation', 'financial'];
+
+        // For-loop to take up less space for parameterization
+        for(let i = 0;i < sub_cats.length;i++) {
+            // Variable that contains the income or expense string based off of i value in for-loop
+            let cat = i < 3 ? 'income' : 'expense';
+
+            // Sub category percentages based off of their category totals
+            document.getElementById(`${cat}-sub${i+1}`).innerHTML = sub[sub_cats[i]][0] + '%';
+
+            // Sub Category percentages based off of total
+            document.getElementById(`sub${i+1}`).innerHTML = sub[sub_cats[i]][1] + '%';
+        }
+    });
+
+    // Fetching the API in charge of the KMean Algorithm Insights
+    fetch('/api/fetchTransactionInsights/')
+    .then(response => response.json())
+    .then(data => {
+        let sizes = ['small_', 'medium_', 'large_'];
+        let attrs = ['center', 'instances', 'percent', 'amount'];
+        let symbols = ['$', '', '%', '$']
+        let counter = 0;
+
+        // Using for-loops to paramaterize 
+        for(let i = 0;i < 3; i++) {
+            for(let j = 0;j < 4;j++) {
+                counter++;
+                document.getElementById(`exp-ins${counter}`).innerHTML = data[sizes[i]+'exp'][attrs[j]] > 0 ? data[sizes[i]+'exp'][attrs[j]] + symbols[j] : 'N/A';
+                document.getElementById(`inc-ins${counter}`).innerHTML = data[sizes[i]+'inc'][attrs[j]] > 0 ? data[sizes[i]+'inc'][attrs[j]] + symbols[j] : 'N/A';
+            }
+        }
+    })
+}
+
+// Calling the function to execute the api if the current URL is the homepage (dashboard)
+if(window.location.pathname == '/home/') {
+    apiCall();
+}
 
 // function for the homepage plot - Specifically, filtering month/year
 function filterMonth() {
@@ -7,74 +69,155 @@ function filterMonth() {
     var plot = document.getElementById('plot_graph');
     var date_val = document.getElementById('date_choice').value;
     var djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    // Extracting the Date value as an object to extract month and year values 
-    var date = new Date(Date.parse(date_val));
-    var month = date.getUTCMonth();
-    year=date.getFullYear();
 
-    fetch(
-        window.location.href, {
-            method: 'POST',
-            headers : {
-                'Content-Type': 'application/json',
-                'X-CSRFTOKEN': djangotoken
+    if(date_val == NaN || date_val == "") {
+        location.reload();
+    } else {
+        // Extracting the Date value as an object to extract month and year values  
+        var date = new Date(Date.parse(date_val));
+        var month = date.getUTCMonth();
+        year=date.getFullYear();
+
+        try {
+            fetch(
+                window.location.href, {
+                    method: 'PUT',
+                    headers : {
+                        'Content-Type': 'application/json',
+                        'X-CSRFTOKEN': djangotoken
+                    },
+                    body: JSON.stringify({'month': month+1, 'year': year})
+                }
+            )
+            .then(response => response.json())
+            .then(data => {
+                let vals = [{
+                    values: data.amount,
+                    labels: data.type,
+                    type: 'pie',
+                    color: data.type,
+                    textinfo: 'label+percent'
+                }]
+                // From the internet, to have a consistent color palette
+                let layout = {
+                    colorway: [
+                        '#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', 
+                        '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECb52'
+                    ],
+                    title: {
+                        text: 'Expenses vs Income',
+                        xref:'paper',
+                        x: 0.008
+                    }
+                }
+                Plotly.newPlot(plot, vals, layout);
+                if(month == NaN) {
+                    document.getElementById('home_header').innerHTML = 'Ongoing Total';
+                } else {
+                    document.getElementById('home_header').innerHTML = `${months[month]} ${year}`;
+                }
+            })
+            .catch(error => console.log(`Error: ${error}`));
+        } catch(error) {
+            console.error(error);
+        }
+
+        // Calling the API in order to get data via the month and year value
+        fetch(`/api/subWeights/`, {
+            method: 'PUT', 
+            headers: {
+                'Content-Type':'application/json',
+                'X-CSRFToken': djangotoken
             },
-            body: JSON.stringify({'month': month+1, 'year': year})
-        }
-    )
-    .then(response => response.json())
-    .then(data => {
-        let vals = [{
-            values: data.amount,
-            labels: data.type,
-            type: 'pie',
-            color: data.type,
-            textinfo: 'label+percent'
-        }]
-        // From the internet, to have a consistent color palette
-        let layout = {
-            colorway: [
-                '#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', 
-                '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECb52'
-            ],
-            title: {
-                text: 'Expenses vs Income',
-                xref:'paper',
-                x: 0.008
-            }
-        }
-        Plotly.newPlot(plot, vals, layout);
-        document.getElementById('home_header').innerHTML = `${months[month]} ${year}`;
-    })
-    .catch(error => console.log(`Error: ${error}`))
+            body: JSON.stringify({'month' : month+1, 'year': year})
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Displaying the income/expense total for that month
+            document.getElementById('income-total').innerHTML = data['income'] + '$';
+            document.getElementById('expense-total').innerHTML = data['expense'] + '$';
+            
+            // Instantiating variables before for-loop execution to paramaterize values
+            let sub = data['sub_weight'];
+            let sub_cats = ['earned', 'portfolio', 'passive', 'personal', 'housing', 'food', 'transportation', 'financial'];
 
-    
+            // For-loop to take up less space for parameterization
+            for(let i = 0;i < sub_cats.length;i++) {
+                // Variable that contains the income or expense string based off of i value in for-loop
+                let cat = i < 3 ? 'income' : 'expense';
+
+                // Sub category percentages based off of their category totals
+                document.getElementById(`${cat}-sub${i+1}`).innerHTML = sub[sub_cats[i]][0] + '%';
+
+                // Sub Category percentages based off of total
+                document.getElementById(`sub${i+1}`).innerHTML = sub[sub_cats[i]][1] + '%';
+            }
+
+            // Calling the REST API in accordance to the Selected Month
+            fetch('/api/fetchTransactionInsights/', {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': djangotoken
+                },
+                body: JSON.stringify({'month': month+1})
+            })
+            .then(response => response.json())
+            .then(data => {
+                let sizes = ['small_', 'medium_', 'large_'];
+                let attrs = ['center', 'instances', 'percent', 'amount'];
+                let symbols = ['$', '', '%', '$']
+                let counter = 0;
+
+                // Using for-loops to paramaterize 
+                for(let i = 0;i < 3; i++) {
+                    for(let j = 0;j < 4;j++) {
+                        counter++;
+                        document.getElementById(`exp-ins${counter}`).innerHTML = data[sizes[i]+'exp'][attrs[j]] > 0 ? data[sizes[i]+'exp'][attrs[j]] + symbols[j] : 'N/A';
+                        document.getElementById(`inc-ins${counter}`).innerHTML = data[sizes[i]+'inc'][attrs[j]] > 0 ? data[sizes[i]+'inc'][attrs[j]] + symbols[j] : 'N/A';
+                    }
+                }
+            })
+        });
+    }
 }
 
 // Saving Changes of the edited information
 function submitEdits(id, counter) {
-    var data = []
+    // Getting the transaction type
+    let transaction_type = document.querySelector(`[name=t_type_${counter}]:checked`).value;
+
+    // Fetching the sub-transaction type
+    let subtransaction_type;
+    if(transaction_type === 'income') {
+        subtransaction_type = document.querySelector(`[name=sub_i_type_${counter}]:checked`).value;
+
+    } else {
+        subtransaction_type = document.querySelector(`[name=sub_e_type_${counter}]:checked`).value;
+    }
+
+    // Fetching the amount if typed, if the user hasn't entered anything, django will handle in the backend
+    let amount = document.getElementById(`hid-1_${counter}`).value;
     
-    for(let x = 1; x < 5; x++) {
-        if(x == 4) {
-            let values = document.getElementsByName(`t_type_${counter}`);
-            for(let i = 0; i < values.length; i++) {
-                if (values[i].checked) {
-                    data.push(values[i].value)
-                    break
-                }
-            }
-        } else {
-            data.push(document.getElementById(`hid-${x}_${counter}`).value);
-        }
+    // Fetching the date, same null/None type handling at the backend
+    let date = document.getElementById(`hid-2_${counter}`).value;
+    
+    // Fetching the optional message
+    let message = document.getElementById(`hid-3_${counter}`).value;
+
+    // Fetching if the transaction is recurring or not
+    let recurring = (document.querySelector(`[name=recur_choice_${counter}]:checked`).value === 'yes');
+
+    // Fetching the recurring type, if the recurring is set to true
+    let recurring_type = 'N/A';
+    if (recurring == true) {
+        recurring_type = document.querySelector(`[name=date_type_${counter}]:checked`).value;
     }
-    var payload = {
-        'id': id,
-        'amount': data[0],
-        'date': data[1],
-        'message': data[2],
-        'transaction_type': data[3]
-    }
+
+
+    // Initializing the payload in correlation to the attribute names
+    var p = {id, transaction_type, subtransaction_type, amount, date, message, recurring, recurring_type}
+
     // URL for the current window to reference for a POST request
     var curr_url = window.location.href;
 
@@ -88,7 +231,7 @@ function submitEdits(id, counter) {
             'Content-Type': 'application/json',
             'X-CSRFToken': django_token
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(p)
     })
     .then(response => response.json())
     .then(data => console.log('Message: ', data))
@@ -96,6 +239,7 @@ function submitEdits(id, counter) {
     window.location.reload()
 }
 
+// Deleting a Query from a database via the id provided
 function deleteQuery(id) {
     // retreiving token via django middleware
     var djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -118,45 +262,131 @@ function deleteQuery(id) {
     window.location.reload();
 }
 
-// Submit transaction button
-function submitTransaction() {
-    // Initializing form data and retreiving data from the formData object
-    var form = new FormData(document.getElementById('transaction_form'));
-    var amount = form.get('amount');
-    var date = form.get('date');
-    var type = form.get('t_type');
-    // Keeping track of errors
-    let error = false;
-    var error_message = "";
-    var alert_message = [];
-
-    if(amount == null || amount <= 0) {
-        alert_message.push('Invalid amount!');
-        error=true;
-    }
-
-    if(date == "" || date == null) {
-        alert_message.push('Invalid date value!');
-        error=true;
-    }
-
-    if(type == null || type == "") {
-        alert_message.push('Transaction type not specified!');
-        error=true;
-    }
-
-    if(error == true) {
-        for(let x in alert_message) {
-            error_message = error_message + `${alert_message[x]}\n`
-        }
-        alert(error_message);
-    } else {
-        alert('Transaction Submitted Successfully');
-    }
-}
-
 // Simple function to set the visibility attribute to visible when the button is clicked
 function unhide(tag_id) {
     document.getElementById(tag_id).style.visibility = 'visible';
 }
 
+// Enabling the fieldset
+function enableRange(id) {
+    date_range = document.getElementById(id);
+    if (date_range.disabled == true) {
+        date_range.disabled = false;
+    }
+}
+
+// Disabling the fieldset
+function disableRange(id) {
+    date_range = document.getElementById(id);
+    if (date_range.disabled == false) {
+        date_range.disabled = true;
+    }
+}
+
+// Enabing sub groups to be disabled/enabled when Income or Expense is selected
+function enableSubGroup(id1, id2) {
+    obj1 = document.getElementById(id1);
+    obj2 = document.getElementById(id2);
+
+    if(obj1.disabled == true) { 
+        obj1.disabled = false;
+        obj2.disabled = true;
+    }
+}
+
+// Checking form data and sending data as a POST request
+function submitTransaction() {
+    // Transaction type
+    let t_type = document.querySelector('input[name=t_type]:checked').value;
+    // Sub-transaction type
+    let sub_type;
+    if (t_type == 'income') { 
+        sub_type = document.querySelector('input[name=sub_i_type]:checked').value; 
+    }
+    else { 
+        sub_type = document.querySelector('input[name=sub_e_type]:checked').value; 
+    }
+
+    // Amount of the transaction
+    let amount = document.getElementById('amount_id').value;
+
+    // Date of the transaction
+    let date = document.getElementById('date_id').value;
+
+    // Whether or not the transaction is recurring via boolean value
+    let recur = (document.querySelector('input[name=recur_choice]:checked').value === "yes");
+    
+    // The date range via the recur type
+    let recur_type;
+    if (recur) { 
+        recur_type = document.querySelector('input[name=date_type]:checked').value; 
+    }
+    else { recur_type = "N/A"; }
+
+    // Message that is optional and describes the transaction in more detail
+    let message = document.getElementById('message_id').value;
+
+    // Initializing the Payload
+    let payload = {
+        t_type,
+        sub_type,
+        amount,
+        date,
+        recur,
+        recur_type,
+        message
+    }
+
+    // Fetch api
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type':'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if(response.ok) {
+            alert("Transaction Successfully submitted!");
+            window.location.reload();
+        } else {
+            alert("Error, please complete all necessary fields before submitting!");
+        }
+        console.log(response.json());
+    })
+}
+
+// Parameterising the modal with the checked inputs that correlate with the data
+function openModal(modalId, t_type, sub_type, recur, recur_type, counter) {
+    // Fetching/Creating the modal via bootstrap
+    let modalElement = document.getElementById(modalId);
+    const modalInstance = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+    // Parameterise the modal inputs before it is shown
+    let sub;
+    // Prechecking the transaction type based off of the db query
+    document.querySelector(`[name="t_type_${counter}"][value="${t_type}"]`).checked = true;
+
+    // Having the previous subcategory pre-checked based off of what the transaction type
+    if(t_type === 'income') {
+        sub = document.querySelector(`[name="sub_i_type_${counter}"][value="${sub_type}"]`).checked = true;
+        document.getElementById(`sub_expense_modal_${counter}`).disabled = true;
+    } else {
+        sub = document.querySelector(`[name="sub_e_type_${counter}"][value="${sub_type}"]`).checked = true;
+        document.getElementById(`sub_income_modal_${counter}`).disabled = true;
+    }
+    // Changing it to boolean format
+    recur = (recur === "True")
+
+    // Pre-checking the recur choice fields, including the type
+    if(recur === true) {
+        document.querySelector(`[name=recur_choice_${counter}][value=yes]`).checked = true;
+        document.querySelector(`[name=date_type_${counter}][value=${recur_type}]`).checked = true;
+    } else {
+        document.querySelector(`[name=recur_choice_${counter}][value=no]`).checked = true;
+        document.getElementById(`date_range_id_${counter}`).disabled = true;
+    }
+
+    // Showing the modal to the user
+    modalInstance.show();
+}

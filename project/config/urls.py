@@ -5,6 +5,7 @@ from django.views.static import serve
 
 urlpatterns = [
     path('', include("useraccounts.urls")), # Login/Registration made for user login and registration
+    path('api/', include('useraccounts.api_urls')),
     path('admin/', admin.site.urls)
 ]
 

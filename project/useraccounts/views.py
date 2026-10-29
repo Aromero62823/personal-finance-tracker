@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from . import models
 import json
 import plotly.express as px
@@ -83,16 +83,19 @@ def get_plot(transactions):
 # Creating a simple plot to output to the html homepage
 @login_required
 def homepage(request):
-    if request.method == "POST":
-            data = json.loads(request.body)
-            month = data.get('month')
-            year = data.get('year')
-            transactions = models.Transaction.objects.filter(user=request.user.username, date__month=month, date__year=year)
-            amount = [x.amount for x in transactions]
-            type = [y.transaction_type for y in transactions]
-            return JsonResponse({'amount': amount, 'type' : type})
+    # Put request because we are replacing an existing element via given parameters
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        month = data.get('month')
+        year = data.get('year')
+        transactions = models.Transaction.objects.filter(user=request.user.username, date__month=month, date__year=year)
+        amount = [x.amount for x in transactions]
+        type = [y.transaction_type for y in transactions]
+        return JsonResponse({'amount': amount, 'type' : type})
+    
     # Retrieving data for the current month
     date = datetime.now()
+
     # Query all data pertaining to the user
     transactions = models.Transaction.objects.filter(user=request.user.username)
     curr_date = date.strftime('%B %Y')
@@ -101,30 +104,32 @@ def homepage(request):
 
     return render(request, template_name='home.html', context={'username': request.user.username, 'curr_date': curr_date, 'plot': plot })
 
-
+# View for the Transaction Page
 @login_required
 def transactionView(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
-            transaction_type = request.POST['t_type']
-            amount = request.POST['amount']
-            date = request.POST['date']
-            message = request.POST['message_box'] if request.POST['message_box'] != "" else ""
-
+            # Parsing the body of the request
+            data = json.loads(request.body)
+            
             transaction = models.Transaction.objects.create(
                 user=request.user,
-                transaction_type=transaction_type,
-                amount=amount,
-                date=date,
-                message=message
+                transaction_type=data['t_type'],
+                subtransaction_type=data['sub_type'],
+                recurring=data['recur'],
+                recurring_type=data['recur_type'],
+                amount=data['amount'],
+                date=data['date'],
+                message=data['message']
             )
+
             transaction.save()
         except Exception as e:
-            print(f'Error: {e}')
+            return JsonResponse({'error': e}, status=500)
         
-    return render(request, template_name='transaction.html', context={'username': request.user.username })
+    return render(request, template_name='transaction.html', context={'username': request.user.username }, status=200)
 
-
+# History View, will update existing data or delete!
 @login_required
 def historyView(request):
     # Showing all the transactions(Expenses and Income) for the current month with the ability to go back in the past to fix or edit anything else.
@@ -135,17 +140,17 @@ def historyView(request):
             data = json.loads(request.body)
             transaction = models.Transaction.objects.get(id=data.get('id'))
             for key, value in data.items():
-                if key == 'id' or value == None or value.strip() == '':
+                if key == 'id' or value == None or value == '':
                     continue
                 else:
                     if key == 'amount':
-                        setattr(transaction, key, float(value))                        
+                        setattr(transaction, key, float(value))
                     else:
                         setattr(transaction, key, value)
-                    
             transaction.save()
             
         except Exception as e:
+            print(e)
             return JsonResponse(data={'error': str(e)}, status=404)
         
         return JsonResponse(data={'message':'Database updated', 'status':'success'}, status=200)
@@ -155,18 +160,5 @@ def historyView(request):
             id = json.loads(request.body)
             obj = models.Transaction.objects.get(id=id)
             obj.delete()
-
-    if request.method == "POST":
-        r_date = json.loads(request.body)
-        month = r_date.get('month')
-        year = r_date.get('year')
-        data = models.Transaction.objects.filter(user=request.user.username, date__month=month, date__year=year)
-        payload = {
-            "amount": [x.amount for x in data],
-            "date": [x.date for x in data],
-            "type": [x.transaction_type for x in data],
-            "message": [x.message for x in data]
-        }
-        return JsonResponse({'payload': payload})
 
     return render(request, template_name='history.html', context={'username': request.user.username, 'history': h_data })
