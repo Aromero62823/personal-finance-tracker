@@ -24,10 +24,16 @@ def total_expense(request):
     return Response({'total expense': total})
 
 # Returning the amount of weight that every category has
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 def sub_weights(request):
     # Retrieving the data pertaining to the user
     data = models.Transaction.objects.filter(user=request.user.username)
+
+    # Filtering the data with the date(month/year) as parameters
+    if request.method == 'PUT':
+        body = json.loads(request.body)
+        data = data.filter(date__month=body['month'], date__year=body['year'])
+
     # Sub categories from the Transaction model
     subs = models.Transaction.transaction_sub_choices
 
@@ -37,7 +43,7 @@ def sub_weights(request):
 
     subweight = helper_subweight(data, subs, [inc_total, exp_total])    
 
-    return Response({'subweights' : subweight})
+    return Response({'income': inc_total, 'expense': exp_total, 'sub_weight' : subweight})
 
 # helper function to help create the subweights
 def helper_subweight(data, choices, totals):
@@ -71,34 +77,6 @@ def helper_subweight(data, choices, totals):
 
     return sub_dict
 
-# GET request to show data pertaining to the month selected
-@api_view(['GET'])
-def filter_by_month(request):
-    # Getting the month and year
-    month = request.GET.get('month')
-    year = request.GET.get('year')
-
-    # Fetching data pertaining to the date
-    model_data = models.Transaction.objects.filter(date__month=month, date__year=year, user=request.user.username)
-
-    # Income Total
-    income_total = get_total('income', model_data)
-    # Expense Total
-    expense_total = get_total('expense', model_data)
-
-    # Gathering the subweights
-    sub = helper_subweight(
-        model_data, 
-        models.Transaction.transaction_sub_choices,
-        [income_total, expense_total]
-        )
-
-    return Response({
-        'income': income_total,
-        'expense': expense_total,
-        'sub_weight': sub
-    })
-
 # K-means algorithm via a GET Request
 @api_view(['GET', 'PUT'])
 def fetchTransactionInsights(request):
@@ -106,7 +84,7 @@ def fetchTransactionInsights(request):
     data = models.Transaction.objects.filter(user=request.user.username)
     if request.method == 'PUT':
         body = json.loads(request.body)
-        data = data.filter(date__month=body.get('month'))
+        data = data.filter(date__month=body.get('month')) if body.get('month') != None else data
 
     # Sending to the helper function    
     small_exp, medium_exp, large_exp = insightHelperFunction(type='expense', data=data)

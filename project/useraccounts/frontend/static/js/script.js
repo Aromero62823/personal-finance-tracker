@@ -17,33 +17,25 @@ function apiCall() {
         document.getElementById('expense-total').innerHTML = data['total expense'] + '$';
     });
 
-    // Fetchign the sub category weights
+    // Fetching the sub category weights
     fetch('/api/subWeights/')
     .then(response => response.json())
     .then(data => {
-        data = data['subweights']
-        // Income categories
-        document.getElementById('income-sub1').innerHTML = data['earned'][0]+'%';
-        document.getElementById('income-sub2').innerHTML = data['portfolio'][0]+'%';
-        document.getElementById('income-sub3').innerHTML = data['passive'][0]+'%';
+        // Instantiating variables before for-loop execution to paramaterize values
+        let sub = data['sub_weight'];
+        let sub_cats = ['earned', 'portfolio', 'passive', 'personal', 'housing','food', 'transportation', 'financial'];
 
-        // Expense Category
-        document.getElementById('expense-sub1').innerHTML = data['personal'][0]+'%';
-        document.getElementById('expense-sub2').innerHTML = data['housing'][0]+'%';
-        document.getElementById('expense-sub3').innerHTML = data['food'][0]+'%';
-        document.getElementById('expense-sub4').innerHTML = data['transportation'][0]+'%';
-        document.getElementById('expense-sub5').innerHTML = data['financial'][0]+'%';
+        // For-loop to take up less space for parameterization
+        for(let i = 0;i < sub_cats.length;i++) {
+            // Variable that contains the income or expense string based off of i value in for-loop
+            let cat = i < 3 ? 'income' : 'expense';
 
-        // Subcategory percentage based off of total
-        document.getElementById('sub1').innerHTML = data['earned'][1] + '%';
-        document.getElementById('sub1').innerHTML = data['earned'][1] + '%';
-        document.getElementById('sub2').innerHTML = data['portfolio'][1] + '%';
-        document.getElementById('sub3').innerHTML = data['passive'][1] + '%';
-        document.getElementById('sub4').innerHTML = data['personal'][1] + '%';
-        document.getElementById('sub5').innerHTML = data['housing'][1] + '%';
-        document.getElementById('sub6').innerHTML = data['food'][1] + '%';
-        document.getElementById('sub7').innerHTML = data['transportation'][1] + '%';
-        document.getElementById('sub8').innerHTML = data['financial'][1] + '%';
+            // Sub category percentages based off of their category totals
+            document.getElementById(`${cat}-sub${i+1}`).innerHTML = sub[sub_cats[i]][0] + '%';
+
+            // Sub Category percentages based off of total
+            document.getElementById(`sub${i+1}`).innerHTML = sub[sub_cats[i]][1] + '%';
+        }
     });
 
     // Fetching the API in charge of the KMean Algorithm Insights
@@ -72,7 +64,7 @@ if(window.location.pathname == '/home/') {
 }
 
 // function for the homepage plot - Specifically, filtering month/year
-async function filterMonth() {
+function filterMonth() {
     // Extracting values from DOM and parsed Date object
     var plot = document.getElementById('plot_graph');
     var date_val = document.getElementById('date_choice').value;
@@ -116,7 +108,11 @@ async function filterMonth() {
                 }
             }
             Plotly.newPlot(plot, vals, layout);
-            document.getElementById('home_header').innerHTML = `${months[month]} ${year}`;
+            if(month == NaN) {
+                document.getElementById('home_header').innerHTML = 'Ongoing Total';
+            } else {
+                document.getElementById('home_header').innerHTML = `${months[month]} ${year}`;
+            }
         })
         .catch(error => console.log(`Error: ${error}`));
     } catch(error) {
@@ -124,12 +120,13 @@ async function filterMonth() {
     }
 
     // Calling the API in order to get data via the month and year value
-    fetch(`/api/fetchMonthData/?month=${month+1}&year=${year}`, {
-        method: 'GET', 
+    fetch(`/api/subWeights/`, {
+        method: 'PUT', 
         headers: {
             'Content-Type':'application/json',
             'X-CSRFToken': djangotoken
-        }
+        },
+        body: JSON.stringify({'month' : month+1, 'year': year})
     })
     .then(response => response.json())
     .then(data => {
@@ -137,30 +134,21 @@ async function filterMonth() {
         document.getElementById('income-total').innerHTML = data['income'] + '$';
         document.getElementById('expense-total').innerHTML = data['expense'] + '$';
         
-        sub = data['sub_weight']
-        // Income categories
-        document.getElementById('income-sub1').innerHTML = sub['earned'][0]+'%';
-        document.getElementById('income-sub2').innerHTML = sub['portfolio'][0]+'%';
-        document.getElementById('income-sub3').innerHTML = sub['passive'][0]+'%';
+        // Instantiating variables before for-loop execution to paramaterize values
+        let sub = data['sub_weight'];
+        let sub_cats = ['earned', 'portfolio', 'passive', 'personal', 'housing', 'food', 'transportation', 'financial'];
 
-        // Expense Category
-        document.getElementById('expense-sub1').innerHTML = sub['personal'][0]+'%';
-        document.getElementById('expense-sub2').innerHTML = sub['housing'][0]+'%';
-        document.getElementById('expense-sub3').innerHTML = sub['food'][0]+'%';
-        document.getElementById('expense-sub4').innerHTML = sub['transportation'][0]+'%';
-        document.getElementById('expense-sub5').innerHTML = sub['financial'][0]+'%';
+        // For-loop to take up less space for parameterization
+        for(let i = 0;i < sub_cats.length;i++) {
+            // Variable that contains the income or expense string based off of i value in for-loop
+            let cat = i < 3 ? 'income' : 'expense';
 
-        // Subcategory percentage based off of total
-        document.getElementById('sub1').innerHTML = sub['earned'][1] + '%';
-        document.getElementById('sub1').innerHTML = sub['earned'][1] + '%';
-        document.getElementById('sub2').innerHTML = sub['portfolio'][1] + '%';
-        document.getElementById('sub3').innerHTML = sub['passive'][1] + '%';
-        document.getElementById('sub4').innerHTML = sub['personal'][1] + '%';
-        document.getElementById('sub5').innerHTML = sub['housing'][1] + '%';
-        document.getElementById('sub6').innerHTML = sub['food'][1] + '%';
-        document.getElementById('sub7').innerHTML = sub['transportation'][1] + '%';
-        document.getElementById('sub8').innerHTML = sub['financial'][1] + '%';
+            // Sub category percentages based off of their category totals
+            document.getElementById(`${cat}-sub${i+1}`).innerHTML = sub[sub_cats[i]][0] + '%';
 
+            // Sub Category percentages based off of total
+            document.getElementById(`sub${i+1}`).innerHTML = sub[sub_cats[i]][1] + '%';
+        }
 
         // Calling the REST API in accordance to the Selected Month
         fetch('/api/fetchTransactionInsights/', {
