@@ -106,6 +106,7 @@ class KMeansTestCase(TestCase):
         self.assertEqual(large['center'], [300.00])
         self.assertEqual(large['percent'], 90.91)
 
+# Test case for the subweight values via REST API
 class SubWeightTestCase(TestCase):
     # Instantiating the process to insert dummy data to test totals returned via API call
     def setUp(self):
@@ -123,7 +124,7 @@ class SubWeightTestCase(TestCase):
         response = self.client.get('/api/subWeights/')
         # print(response.json()['subweights'])
         self.assertEqual(response.status_code, 200)
-        sub = response.json()['subweights']
+        sub = response.json()['sub_weight']
 
         # assertion test cases to match values via their respective categories (will return rounded by 2 decimal points)
         # Income:
