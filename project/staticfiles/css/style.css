@@ -12,7 +12,6 @@ h4 {
     align-self: center;
     justify-self: center;
     text-shadow: 2px 3px 3px lightgrey;
-    color: red;
 }
 
 a {
@@ -47,5 +46,4 @@ a:hover {
 
 legend {
     font-size: 1.02rem;
-    color: red;
 }

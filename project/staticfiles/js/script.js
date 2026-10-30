@@ -70,112 +70,116 @@ function filterMonth() {
     var date_val = document.getElementById('date_choice').value;
     var djangotoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    // Extracting the Date value as an object to extract month and year values  
-    var date = new Date(Date.parse(date_val));
-    var month = date.getUTCMonth();
-    year=date.getFullYear();
+    if(date_val == NaN || date_val == "") {
+        location.reload();
+    } else {
+        // Extracting the Date value as an object to extract month and year values  
+        var date = new Date(Date.parse(date_val));
+        var month = date.getUTCMonth();
+        year=date.getFullYear();
 
-    try {
-        fetch(
-            window.location.href, {
-                method: 'PUT',
-                headers : {
-                    'Content-Type': 'application/json',
-                    'X-CSRFTOKEN': djangotoken
-                },
-                body: JSON.stringify({'month': month+1, 'year': year})
-            }
-        )
-        .then(response => response.json())
-        .then(data => {
-            let vals = [{
-                values: data.amount,
-                labels: data.type,
-                type: 'pie',
-                color: data.type,
-                textinfo: 'label+percent'
-            }]
-            // From the internet, to have a consistent color palette
-            let layout = {
-                colorway: [
-                    '#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', 
-                    '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECb52'
-                ],
-                title: {
-                    text: 'Expenses vs Income',
-                    xref:'paper',
-                    x: 0.008
+        try {
+            fetch(
+                window.location.href, {
+                    method: 'PUT',
+                    headers : {
+                        'Content-Type': 'application/json',
+                        'X-CSRFTOKEN': djangotoken
+                    },
+                    body: JSON.stringify({'month': month+1, 'year': year})
                 }
-            }
-            Plotly.newPlot(plot, vals, layout);
-            if(month == NaN) {
-                document.getElementById('home_header').innerHTML = 'Ongoing Total';
-            } else {
-                document.getElementById('home_header').innerHTML = `${months[month]} ${year}`;
-            }
-        })
-        .catch(error => console.log(`Error: ${error}`));
-    } catch(error) {
-        console.error(error);
-    }
-
-    // Calling the API in order to get data via the month and year value
-    fetch(`/api/subWeights/`, {
-        method: 'PUT', 
-        headers: {
-            'Content-Type':'application/json',
-            'X-CSRFToken': djangotoken
-        },
-        body: JSON.stringify({'month' : month+1, 'year': year})
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Displaying the income/expense total for that month
-        document.getElementById('income-total').innerHTML = data['income'] + '$';
-        document.getElementById('expense-total').innerHTML = data['expense'] + '$';
-        
-        // Instantiating variables before for-loop execution to paramaterize values
-        let sub = data['sub_weight'];
-        let sub_cats = ['earned', 'portfolio', 'passive', 'personal', 'housing', 'food', 'transportation', 'financial'];
-
-        // For-loop to take up less space for parameterization
-        for(let i = 0;i < sub_cats.length;i++) {
-            // Variable that contains the income or expense string based off of i value in for-loop
-            let cat = i < 3 ? 'income' : 'expense';
-
-            // Sub category percentages based off of their category totals
-            document.getElementById(`${cat}-sub${i+1}`).innerHTML = sub[sub_cats[i]][0] + '%';
-
-            // Sub Category percentages based off of total
-            document.getElementById(`sub${i+1}`).innerHTML = sub[sub_cats[i]][1] + '%';
+            )
+            .then(response => response.json())
+            .then(data => {
+                let vals = [{
+                    values: data.amount,
+                    labels: data.type,
+                    type: 'pie',
+                    color: data.type,
+                    textinfo: 'label+percent'
+                }]
+                // From the internet, to have a consistent color palette
+                let layout = {
+                    colorway: [
+                        '#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A', 
+                        '#19D3F3', '#FF6692', '#B6E880', '#FF97FF', '#FECb52'
+                    ],
+                    title: {
+                        text: 'Expenses vs Income',
+                        xref:'paper',
+                        x: 0.008
+                    }
+                }
+                Plotly.newPlot(plot, vals, layout);
+                if(month == NaN) {
+                    document.getElementById('home_header').innerHTML = 'Ongoing Total';
+                } else {
+                    document.getElementById('home_header').innerHTML = `${months[month]} ${year}`;
+                }
+            })
+            .catch(error => console.log(`Error: ${error}`));
+        } catch(error) {
+            console.error(error);
         }
 
-        // Calling the REST API in accordance to the Selected Month
-        fetch('/api/fetchTransactionInsights/', {
-            method: "PUT",
+        // Calling the API in order to get data via the month and year value
+        fetch(`/api/subWeights/`, {
+            method: 'PUT', 
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type':'application/json',
                 'X-CSRFToken': djangotoken
             },
-            body: JSON.stringify({'month': month+1})
+            body: JSON.stringify({'month' : month+1, 'year': year})
         })
         .then(response => response.json())
         .then(data => {
-            let sizes = ['small_', 'medium_', 'large_'];
-            let attrs = ['center', 'instances', 'percent', 'amount'];
-            let symbols = ['$', '', '%', '$']
-            let counter = 0;
+            // Displaying the income/expense total for that month
+            document.getElementById('income-total').innerHTML = data['income'] + '$';
+            document.getElementById('expense-total').innerHTML = data['expense'] + '$';
+            
+            // Instantiating variables before for-loop execution to paramaterize values
+            let sub = data['sub_weight'];
+            let sub_cats = ['earned', 'portfolio', 'passive', 'personal', 'housing', 'food', 'transportation', 'financial'];
 
-            // Using for-loops to paramaterize 
-            for(let i = 0;i < 3; i++) {
-                for(let j = 0;j < 4;j++) {
-                    counter++;
-                    document.getElementById(`exp-ins${counter}`).innerHTML = data[sizes[i]+'exp'][attrs[j]] > 0 ? data[sizes[i]+'exp'][attrs[j]] + symbols[j] : 'N/A';
-                    document.getElementById(`inc-ins${counter}`).innerHTML = data[sizes[i]+'inc'][attrs[j]] > 0 ? data[sizes[i]+'inc'][attrs[j]] + symbols[j] : 'N/A';
-                }
+            // For-loop to take up less space for parameterization
+            for(let i = 0;i < sub_cats.length;i++) {
+                // Variable that contains the income or expense string based off of i value in for-loop
+                let cat = i < 3 ? 'income' : 'expense';
+
+                // Sub category percentages based off of their category totals
+                document.getElementById(`${cat}-sub${i+1}`).innerHTML = sub[sub_cats[i]][0] + '%';
+
+                // Sub Category percentages based off of total
+                document.getElementById(`sub${i+1}`).innerHTML = sub[sub_cats[i]][1] + '%';
             }
-        })
-    });
+
+            // Calling the REST API in accordance to the Selected Month
+            fetch('/api/fetchTransactionInsights/', {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': djangotoken
+                },
+                body: JSON.stringify({'month': month+1})
+            })
+            .then(response => response.json())
+            .then(data => {
+                let sizes = ['small_', 'medium_', 'large_'];
+                let attrs = ['center', 'instances', 'percent', 'amount'];
+                let symbols = ['$', '', '%', '$']
+                let counter = 0;
+
+                // Using for-loops to paramaterize 
+                for(let i = 0;i < 3; i++) {
+                    for(let j = 0;j < 4;j++) {
+                        counter++;
+                        document.getElementById(`exp-ins${counter}`).innerHTML = data[sizes[i]+'exp'][attrs[j]] > 0 ? data[sizes[i]+'exp'][attrs[j]] + symbols[j] : 'N/A';
+                        document.getElementById(`inc-ins${counter}`).innerHTML = data[sizes[i]+'inc'][attrs[j]] > 0 ? data[sizes[i]+'inc'][attrs[j]] + symbols[j] : 'N/A';
+                    }
+                }
+            })
+        });
+    }
 }
 
 // Saving Changes of the edited information
