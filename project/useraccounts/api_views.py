@@ -4,6 +4,8 @@ from . import models
 from sklearn.cluster import KMeans
 import numpy as np
 import json
+import pandas as pd
+import plotly.express as px
 
 # Helper function to return the total in correspondence to the attribute specified
 def get_total(attr, data):
@@ -13,6 +15,13 @@ def get_total(attr, data):
 @api_view(['GET'])
 def total_income(request):
     data = models.Transaction.objects.filter(user=request.user.username)
+    # If there were URL parameters sent in the GET URL params
+    month = request.GET.get('month', '')
+    year = request.GET.get('year', '')
+
+    if month != '' and year != '':
+        data = data.filter(date__month=month, date__year=year)
+
     total = get_total('income', data)
     return Response({'total income': total})
 
@@ -20,6 +29,14 @@ def total_income(request):
 @api_view(['GET'])
 def total_expense(request):
     data = models.Transaction.objects.filter(user=request.user.username)
+
+    # If there were URL parameters sent in the GET URL params
+    month = request.GET.get('month', '')
+    year = request.GET.get('year', '')
+
+    if month != '' and year != '':
+            data = data.filter(date__month=month, date__year=year)
+
     total = get_total('expense', data)
     return Response({'total expense': total})
 
@@ -33,6 +50,12 @@ def sub_weights(request):
     if request.method == 'PUT':
         body = json.loads(request.body)
         data = data.filter(date__month=body['month'], date__year=body['year'])
+
+    month = request.GET.get('month', '')
+    year = request.GET.get('year', '')
+
+    if month != '' and year != '':
+        data = data.filter(date__month=month, date__year=year)
 
     # Sub categories from the Transaction model
     subs = models.Transaction.transaction_sub_choices
@@ -178,3 +201,37 @@ def insightHelperFunction(type, data):
     }
 
     return small, medium, large
+
+# API view that returns the specs of the plot Data after the initial render of the homepage(dashboard)
+@api_view(['GET'])
+def plotData(request):
+    transactions = models.Transaction.objects.filter(user=request.user.username)
+    month = request.GET.get('month', '')
+    year = request.GET.get('year', '')
+
+    if month != '':
+        transactions = transactions.filter(date__month=month, date__year=year)
+    
+
+    if len(transactions) != 0:
+        z = {
+            'Date': [x.date for x in transactions],
+            'Amount': [y.amount for y in transactions],
+            'Type' : [y.transaction_type for y in transactions]
+        }
+
+        # Converting data to Dataframe
+        df  = pd.DataFrame(z)
+
+        # Standard Pie 
+        fig = px.pie(
+            data_frame=df,
+            values='Amount',
+            names='Type',
+            title="Expenses vs Income"
+        )
+        fig.update_traces(textposition='inside', textinfo='percent+label', insidetextorientation='horizontal')
+
+        return Response(json.loads(fig.to_json()))
+    else:
+        return Response({'data': None, 'layout': None})
