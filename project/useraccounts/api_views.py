@@ -109,6 +109,13 @@ def fetchTransactionInsights(request):
         body = json.loads(request.body)
         data = data.filter(date__month=body.get('month')) if body.get('month') != None else data
 
+    month = request.GET.get('month', '')
+    year = request.GET.get('year', '')
+
+    if month != '' and year != '':
+        data = data.filter(date__month=month, date__year=year)
+
+
     # Sending to the helper function    
     small_exp, medium_exp, large_exp = insightHelperFunction(type='expense', data=data)
     small_inc, medium_inc, large_inc = insightHelperFunction(type='income', data=data)
@@ -123,15 +130,13 @@ def insightHelperFunction(type, data):
 
     # Instantiating the payloads beforehand to help with error handling
     small = {
-        'size': 'Small',
-        'instances': 'N/A',
-        'amount': 'N/A',
-        'center': 'N/A',
-        'percent': 'N/A'
+        'instances': None,
+        'amount': None,
+        'center': None,
+        'percent': None
     }
 
     medium = {
-        'size': 'Medium',
         'instances': None,
         'amount': None,
         'center': None,
@@ -139,7 +144,6 @@ def insightHelperFunction(type, data):
     }
 
     large = {
-        'size': 'Large',
         'instances': None,
         'amount': None,
         'center': None,
@@ -177,7 +181,6 @@ def insightHelperFunction(type, data):
     total = sum([e.amount for e in data])
 
     small = {
-        'size': 'Small',
         'instances': len(s_transaction),
         'amount': sum(s['amount'] for s in s_transaction),
         'center': centroids[ranks[0]],
@@ -185,7 +188,6 @@ def insightHelperFunction(type, data):
     }
 
     medium = {
-        'size': 'Medium',
         'instances': len(m_transaction),
         'amount': sum(m['amount'] for m in m_transaction),
         'center': centroids[ranks[1]],
@@ -193,7 +195,6 @@ def insightHelperFunction(type, data):
     }
 
     large = {
-        'size': 'Large',
         'instances': len(l_transaction),
         'amount': sum(l['amount'] for l in l_transaction),
         'center': centroids[ranks[2]],
@@ -234,4 +235,4 @@ def plotData(request):
 
         return Response(json.loads(fig.to_json()))
     else:
-        return Response({'data': None, 'layout': None})
+        return Response({'data': [], 'layout': []})
