@@ -1,4 +1,5 @@
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.decorators import api_view
 from . import models
 from sklearn.cluster import KMeans
@@ -236,3 +237,34 @@ def plotData(request):
         return Response(json.loads(fig.to_json()))
     else:
         return Response({'data': [], 'layout': []})
+
+# Creating the Transaction submission endpoint
+@api_view(['POST'])
+def transactionSubmit(request):
+    try: 
+        # Parsing the request's body
+        data = json.loads(request.body)
+
+        # Creating the transaction object to match JSON keys that refer to useState variables
+        transaction = models.Transaction.objects.create(
+            user=request.user,
+            transaction_type=data['type'],
+            subtransaction_type=data['subType'],
+            recurring=data['recur'],
+            recurring_type=data['recurType'],
+            amount=data['amount'],
+            date=data['date'],
+            message=data['message']
+        )
+        
+        # Saving it to database
+        transaction.save()
+
+        # Returning the response as a 201 status code: for POST requests
+        return Response({'message': 'Transaction Submitted Successfully!'}, status=status.HTTP_201_CREATED)
+    
+    # Error Handling
+    except:
+        return Response({'message': 'Transaction Submission Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
