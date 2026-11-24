@@ -76,7 +76,7 @@ export default function Home() {
     // Calling the APIs on the initial render: //
     // Calling the plotly graph from the django backend
     useEffect(() => {
-        const fetchChart = async() => {
+        const fetchChart = async () => {
             await fetch('/api/plotData/')
             .then(res => res.json())
             .then(data => setChart(data))
@@ -96,7 +96,7 @@ export default function Home() {
 
     // Total expense API
     useEffect(() => {
-        const fetchExpenseTotal = async() => {
+        const fetchExpenseTotal = async () => {
             await fetch('/api/totalExpense/')
             .then(res => res.json())
             .then(data => setTotalExpense(data['total expense'] + '$'))
@@ -106,7 +106,7 @@ export default function Home() {
 
     // Calling in the subweights
     useEffect(() => {
-        const fetchSubWeights = async() => {
+        const fetchSubWeights = async () => {
             await fetch('/api/subWeights/')
             .then(res => res.json())
             .then(data => {
@@ -122,7 +122,7 @@ export default function Home() {
 
     // Calling the kMeans function in order to parameterize transaction insights in the user's dashboard
     useEffect(() => {
-        fetch('/api/fetchTransactionInsights/')
+        const fetchKMeans = async () => await fetch('/api/fetchTransactionInsights/')
         .then(res => res.json())
         .then(data => {
             // Instantiating the state variables by unpacking them 
@@ -144,7 +144,8 @@ export default function Home() {
                 large_inc: data['large_inc']
             }))
 
-        })
+        });
+        fetchKMeans();
     }, [])
 
     if(!chart) {

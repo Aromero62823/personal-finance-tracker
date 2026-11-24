@@ -36,7 +36,7 @@ def total_expense(request):
     year = request.GET.get('year', '')
 
     if month != '' and year != '':
-            data = data.filter(date__month=month, date__year=year)
+        data = data.filter(date__month=month, date__year=year)
 
     total = get_total('expense', data)
     return Response({'total expense': total})
@@ -207,7 +207,7 @@ def insightHelperFunction(type, data):
 # API view that returns the specs of the plot Data after the initial render of the homepage(dashboard)
 @api_view(['GET'])
 def plotData(request):
-    transactions = models.Transaction.objects.filter(user=request.user.username)
+    transactions = models.Transaction.objects.filter(user=request.user)
     month = request.GET.get('month', '')
     year = request.GET.get('year', '')
 
@@ -266,5 +266,36 @@ def transactionSubmit(request):
     # Error Handling
     except:
         return Response({'message': 'Transaction Submission Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
 
+# Returning all values that pertain and refer to what the user has been submitting
+@api_view(['GET', 'PUT', 'DELETE'])
+def historyView(request, t_id=None):
+    data = models.Transaction.objects.filter(user=request.user)
+    if request.method == "DELETE":
+        try:
+            transaction = data.get(id=t_id)
+            transaction.delete()
+
+            return Response({'message': 'Successfully Deleted!'}, status=status.HTTP_202_ACCEPTED)
+        except Exception as e:
+            print(e)
+            return Response({'message': 'Could not delete selected transaction'}, status=status.HTTP_404_NOT_FOUND)
+    elif request.method == "PUT":
+        try:
+            payload = json.loads(request.body)
+            transaction = models.Transaction.objects.filter(user=request.user).get(id=t_id)
+
+            for key, value in payload.items():
+                setattr(transaction, key, value)
+
+            transaction.save()
+            return Response({'message': 'Successfully Updated!'}, status=status.HTTP_202_ACCEPTED)
+        except:
+            return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        if data:
+            return Response({'history': data.values()}, status=status.HTTP_200_OK)
+        else:
+            return Response({'history': None}, status=status.HTTP_200_OK)
+        
+        

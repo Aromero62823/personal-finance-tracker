@@ -34,6 +34,7 @@
                             <h5 class="modal-title" id="modalLabel">Transaction Information</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+                        
                         <div class="modal-body">
                             <label for="amount">Transaction Amount: {{data.amount}}</label>
                             <button class="btn btn-warning" onclick="unhide('hid-1_{{forloop.counter}}')">Update</button><br>
@@ -96,7 +97,7 @@
                                 <input type="radio" value="yes" id="recur_yes" name="recur_choice_{{forloop.counter}}" onclick="enableRange('date_range_id_{{forloop.counter}}')">
                                 <label for="recur_yes">Yes</label>
                                 <input type="radio" value="no" id="recur_no" name="recur_choice_{{forloop.counter}}" onclick="disableRange('date_range_id_{{forloop.counter}}')">
-                                <label for="recur_no">No</labelf>
+                                <label for="recur_no">No</label>
                             </fieldset><br/>
 
                             <!-- Date range via the re-incurring charge (daily, weekly, monthly, and annually) -->
