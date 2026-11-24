@@ -1,6 +1,7 @@
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from . import models
 from sklearn.cluster import KMeans
 import numpy as np
@@ -14,6 +15,7 @@ def get_total(attr, data):
 
 # Returning the total amount via the income category
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def total_income(request):
     data = models.Transaction.objects.filter(user=request.user.username)
     # If there were URL parameters sent in the GET URL params
@@ -28,6 +30,7 @@ def total_income(request):
 
 # Returning the total amount via the expense category
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def total_expense(request):
     data = models.Transaction.objects.filter(user=request.user.username)
 
@@ -43,6 +46,7 @@ def total_expense(request):
 
 # Returning the amount of weight that every category has
 @api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
 def sub_weights(request):
     # Retrieving the data pertaining to the user
     data = models.Transaction.objects.filter(user=request.user.username)
@@ -101,8 +105,10 @@ def helper_subweight(data, choices, totals):
 
     return sub_dict
 
+
 # K-means algorithm via a GET Request
 @api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
 def fetchTransactionInsights(request):
     # Retreiving all data pertaining the user
     data = models.Transaction.objects.filter(user=request.user.username)
@@ -124,6 +130,7 @@ def fetchTransactionInsights(request):
     return Response(
         {'small_exp': small_exp, 'medium_exp': medium_exp, 'large_exp': large_exp, 'small_inc': small_inc, 'medium_inc': medium_inc, 'large_inc': large_inc}
     )
+
 
 def insightHelperFunction(type, data):
     # Filter the data via the type
@@ -206,6 +213,7 @@ def insightHelperFunction(type, data):
 
 # API view that returns the specs of the plot Data after the initial render of the homepage(dashboard)
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def plotData(request):
     transactions = models.Transaction.objects.filter(user=request.user)
     month = request.GET.get('month', '')
@@ -240,6 +248,7 @@ def plotData(request):
 
 # Creating the Transaction submission endpoint
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def transactionSubmit(request):
     try: 
         # Parsing the request's body
@@ -269,6 +278,7 @@ def transactionSubmit(request):
 
 # Returning all values that pertain and refer to what the user has been submitting
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def historyView(request, t_id=None):
     data = models.Transaction.objects.filter(user=request.user)
     if request.method == "DELETE":

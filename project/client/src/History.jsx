@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 
+// Component meant to display, update, or delete history data, as well as view past entered transactions
 export default function History() {
-
     // History data
     const [history, setHistory] = useState([]);
+    // History data Item that will hold the state of the current item that the user is trying to edit/delete
     const [historyItem, setHistoryItem] = useState({});
 
     // Fetching the history data via a GET request that will decide and paramterize the return DOM
@@ -25,7 +26,7 @@ export default function History() {
     const csrfToken = getCookie('csrftoken');
 
     // Updating the selected transaction
-    const updateTransaction = async () => {
+    const updateTransaction = async () => {        
         const update = await fetch(`/api/fetchHistory/${historyItem.id}/`, {
             method: 'PUT',
             headers: {
@@ -99,7 +100,7 @@ export default function History() {
                             
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title" id="modalLabel">Transaction Information for {historyItem.id}</h5>
+                                    <h5 className="modal-title" id="modalLabel">Transaction Information</h5>
                                     <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
 
@@ -173,7 +174,7 @@ export default function History() {
                                                 <label htmlFor="recur_yes" className="form-check-label">Yes</label>
                                             </div>
                                             <div className="form-check form-check-inline">
-                                                <input type="radio" value="no" id="recur_no" className="form-check-input" checked={historyItem.recurring === false} onChange={() => setHistoryItem(prev => ({...prev, recurring: false, recurring_type: null}))} />
+                                                <input type="radio" value="no" id="recur_no" className="form-check-input" checked={historyItem.recurring === false} onChange={() => setHistoryItem(prev => ({...prev, recurring: false, recurring_type: 'N/A'}))} />
                                                 <label htmlFor="recur_no" className="form-check-label">No</label>
                                             </div>
                                         </fieldset><br />

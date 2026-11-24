@@ -26,7 +26,7 @@ export default function Navbar() {
             </ul>
 
             <div className="d-flex">
-                <Link className="btn btn-outline-danger" to="/logout">Logout</Link>
+                <Link className="btn btn-outline-danger" to="http://127.0.0.1:8000/">Logout</Link>
             </div>
         </nav>
         </>

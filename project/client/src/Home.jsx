@@ -11,6 +11,7 @@ export default function Home() {
     const [smallInsight, setSmallInsight] = useState({small_exp: {size: 'N/A', instances: 'N/A', amount: 'N/A', center: 'N/A', percent: 'N/A'}, small_inc: {size: 'N/A', instances: 'N/A', amount: 'N/A', center: 'N/A', percent: 'N/A'}});
     const [mediumInsight, setMediumInsight] = useState({medium_exp: {size: 'N/A', instances: 'N/A', amount: 'N/A', center: 'N/A', percent: 'N/A'}, medium_inc: {size: 'N/A', instances: 'N/A', amount: 'N/A', center: 'N/A', percent: 'N/A'}});
     const [largeInsight, setLargeInsight] = useState({large_exp: {size: 'N/A', instances: 'N/A', amount: 'N/A', center: 'N/A', percent: 'N/A'}, large_inc: {size: 'N/A', instances: 'N/A', amount: 'N/A', center: 'N/A', percent: 'N/A'}});
+    const [homeHeader, setHomeHeader] = useState('Ongoing Total')
 
     // Quickly find a corresponding Month name to its integer value (1-12)
     const months = {1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June', 7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December'}
@@ -19,58 +20,59 @@ export default function Home() {
     const filterMonth = async (e) => {
         // .split() returns an array, using the map(), we can then convert every string to a Number type value(gets rid of the 0 in 06)
         let [year, month] = e.target.value.split('-').map(x => Number(x));
-
-        if(year != 0) {
-            document.getElementById('home_header').innerHTML = `${months[month]} ${year}`
+        
+        if(e.target.value == '') {
+            window.location.reload();
         } else {
-            document.getElementById('home_header').innerHTML = 'Ongoing Total'
+
+            year == 0 ? setHomeHeader('Ongoing Total') : setHomeHeader(`${months[month]} ${year}`)
+
+            // Using a fetch statement to change the variables to the month/year parameters.
+            await fetch(`/api/plotData/?month=${month}&year=${year}`)
+            .then(res => res.json())
+            .then(data => setChart(data))
+
+            await fetch(`/api/totalIncome/?month=${month}&year=${year}`)
+            .then(res => res.json())
+            .then(data => setTotalIncome(data['total income'] + '$'))
+
+            await fetch(`/api/totalExpense/?month=${month}&year=${year}`)
+            .then(res => res.json())
+            .then(data => setTotalExpense(data['total expense'] + '$'))
+
+            await fetch(`/api/subWeights/?month=${month}&year=${year}`)
+            .then(res => res.json())
+            .then(data => {
+                // instantiation through unpacking
+                setSubWeights(prev => ({
+                    ...prev,
+                    ...data['sub_weight']
+                }));
+            });
+
+            await fetch(`/api/fetchTransactionInsights/?month=${month}&year=${year}`)
+            .then(res => res.json())
+            .then(data => {
+                // Instantiating the state variables by unpacking them 
+                setSmallInsight(prev => ({
+                    ...prev,
+                    small_exp: data['small_exp'],
+                    small_inc: data['small_inc']
+                }))
+
+                setMediumInsight(prev => ({
+                    ...prev,
+                    medium_exp: data['medium_exp'],
+                    medium_inc: data['medium_inc']
+                }))
+
+                setLargeInsight(prev => ({
+                    ...prev,
+                    large_exp: data['large_exp'],
+                    large_inc: data['large_inc']
+                }))
+            })
         }
-
-        // Using a fetch statement to change the variables to the month/year parameters.
-        await fetch(`/api/plotData/?month=${month}&year=${year}`)
-        .then(res => res.json())
-        .then(data => setChart(data))
-
-        await fetch(`/api/totalIncome/?month=${month}&year=${year}`)
-        .then(res => res.json())
-        .then(data => setTotalIncome(data['total income'] + '$'))
-
-        await fetch(`/api/totalExpense/?month=${month}&year=${year}`)
-        .then(res => res.json())
-        .then(data => setTotalExpense(data['total expense'] + '$'))
-
-        await fetch(`/api/subWeights/?month=${month}&year=${year}`)
-        .then(res => res.json())
-        .then(data => {
-            // instantiation through unpacking
-            setSubWeights(prev => ({
-                ...prev,
-                ...data['sub_weight']
-            }));
-        });
-
-        await fetch(`/api/fetchTransactionInsights/?month=${month}&year=${year}`)
-        .then(res => res.json())
-        .then(data => {
-            // Instantiating the state variables by unpacking them 
-            setSmallInsight(prev => ({
-                ...prev,
-                small_exp: data['small_exp'],
-                small_inc: data['small_inc']
-            }))
-
-            setMediumInsight(prev => ({
-                ...prev,
-                medium_exp: data['medium_exp'],
-                medium_inc: data['medium_inc']
-            }))
-
-            setLargeInsight(prev => ({
-                ...prev,
-                large_exp: data['large_exp'],
-                large_inc: data['large_inc']
-            }))
-        })
     }
 
     // Calling the APIs on the initial render: //
@@ -158,12 +160,12 @@ export default function Home() {
             <>
             <br />
             <h4 style={{ marginTop: '1%' }}>
-                <b>Financial Statistics for: <span id="home_header">Ongoing Total</span></b>
+                <b>Financial Statistics for: <span id="home_header">{homeHeader}</span></b>
             </h4><br />
 
             <div style={{ marginLeft: '3%' }}>
-                <label for='date_choice'><h6>Choose Month/Year:  </h6> </label>
-                <input type="month" onChange={e => filterMonth(e)} id="date_choice" />
+                <label htmlFor='date_choice' className='form-label'><h6>Choose Month/Year:  </h6> </label>
+                <input type="month" className='form-control' onChange={e => filterMonth(e)} id="date_choice" style={{width: '25%'}}/>
             </div><br />
 
             {/* Total Income/Expense table */}
@@ -176,7 +178,7 @@ export default function Home() {
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{totalIncome}</td> <td id="expense-total">{totalExpense}</td>
+                        <td>{totalIncome}</td> <td>{totalExpense}</td>
                     </tr>
                 </tbody>
             </table>

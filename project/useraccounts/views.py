@@ -20,7 +20,7 @@ def loginView(request):
             user = authenticate(request, username=username, password=password)
             login(request, user)
 
-            return redirect('home/')
+            return redirect('http://127.0.0.1:5173/home/')
             
         except Exception as e:
             print(f'Login Failed: {e}')
@@ -54,84 +54,84 @@ def logoutView(request):
     logout(request)
     return redirect('/')
 
-# Helper function to extract values of the transaction model that pertain to the user
-def get_plot(transactions):
-    if len(transactions) != 0:
-        z = {
-            'Date': [x.date for x in transactions],
-            'Amount': [y.amount for y in transactions],
-            'Type' : [y.transaction_type for y in transactions]
-        }
+# # Helper function to extract values of the transaction model that pertain to the user
+# def get_plot(transactions):
+#     if len(transactions) != 0:
+#         z = {
+#             'Date': [x.date for x in transactions],
+#             'Amount': [y.amount for y in transactions],
+#             'Type' : [y.transaction_type for y in transactions]
+#         }
 
-        # Converting data to Dataframe
-        df  = pd.DataFrame(z)
+#         # Converting data to Dataframe
+#         df  = pd.DataFrame(z)
 
-        # Standard Pie 
-        fig = px.pie(
-            data_frame=df,
-            values='Amount',
-            names='Type',
-            title="Expenses vs Income"
-        )
-        fig.update_traces(textposition='inside', textinfo='percent+label', insidetextorientation='horizontal')
+#         # Standard Pie 
+#         fig = px.pie(
+#             data_frame=df,
+#             values='Amount',
+#             names='Type',
+#             title="Expenses vs Income"
+#         )
+#         fig.update_traces(textposition='inside', textinfo='percent+label', insidetextorientation='horizontal')
 
-        plot = fig.to_html(full_html=False)
-    else:
-        plot = None
-    return plot
+#         plot = fig.to_html(full_html=False)
+#     else:
+#         plot = None
+#     return plot
 
-# Creating a simple plot to output to the html homepage
-@login_required
-def homepage(request):
-    # Put request because we are replacing an existing element via given parameters
-    if request.method == "PUT":
-        data = json.loads(request.body)
-        month = data.get('month')
-        year = data.get('year')
-        transactions = models.Transaction.objects.filter(user=request.user.username, date__month=month, date__year=year)
-        amount = [x.amount for x in transactions]
-        type = [y.transaction_type for y in transactions]
-        return JsonResponse({'amount': amount, 'type' : type})
+# # Creating a simple plot to output to the html homepage
+# @login_required
+# def homepage(request):
+#     # Put request because we are replacing an existing element via given parameters
+#     if request.method == "PUT":
+#         data = json.loads(request.body)
+#         month = data.get('month')
+#         year = data.get('year')
+#         transactions = models.Transaction.objects.filter(user=request.user.username, date__month=month, date__year=year)
+#         amount = [x.amount for x in transactions]
+#         type = [y.transaction_type for y in transactions]
+#         return JsonResponse({'amount': amount, 'type' : type})
     
-    # Retrieving data for the current month
-    date = datetime.now()
+#     # Retrieving data for the current month
+#     date = datetime.now()
 
-    # Query all data pertaining to the user
-    transactions = models.Transaction.objects.filter(user=request.user.username)
-    curr_date = date.strftime('%B %Y')
+#     # Query all data pertaining to the user
+#     transactions = models.Transaction.objects.filter(user=request.user.username)
+#     curr_date = date.strftime('%B %Y')
     
-    plot = get_plot(transactions=transactions)
+#     plot = get_plot(transactions=transactions)
 
-    return render(request, template_name='home.html', context={'username': request.user.username, 'curr_date': curr_date, 'plot': plot })
+#     return render(request, template_name='home.html', context={'username': request.user.username, 'curr_date': curr_date, 'plot': plot })
 
-# View for the Transaction Page
-@login_required
-def transactionView(request):
-    if request.method == "POST":
-        try:
-            # Parsing the body of the request
-            data = json.loads(request.body)
+# # View for the Transaction Page
+# @login_required
+# def transactionView(request):
+#     if request.method == "POST":
+#         try:
+#             # Parsing the body of the request
+#             data = json.loads(request.body)
             
-            transaction = models.Transaction.objects.create(
-                user=request.user,
-                transaction_type=data['t_type'],
-                subtransaction_type=data['sub_type'],
-                recurring=data['recur'],
-                recurring_type=data['recur_type'],
-                amount=data['amount'],
-                date=data['date'],
-                message=data['message']
-            )
+#             transaction = models.Transaction.objects.create(
+#                 user=request.user,
+#                 transaction_type=data['t_type'],
+#                 subtransaction_type=data['sub_type'],
+#                 recurring=data['recur'],
+#                 recurring_type=data['recur_type'],
+#                 amount=data['amount'],
+#                 date=data['date'],
+#                 message=data['message']
+#             )
 
-            transaction.save()
-        except Exception as e:
-            return JsonResponse({'error': e}, status=500)
+#             transaction.save()
+#         except Exception as e:
+#             return JsonResponse({'error': e}, status=500)
         
-    return render(request, template_name='transaction.html', context={'username': request.user.username }, status=200)
+#     return render(request, template_name='transaction.html', context={'username': request.user.username }, status=200)
 
-# History View, will update existing data or delete!
-@login_required
-def historyView(request):
+# # History View, will update existing data or delete!
+# @login_required
+# def historyView(request):
     # Showing all the transactions(Expenses and Income) for the current month with the ability to go back in the past to fix or edit anything else.
     h_data = models.Transaction.objects.filter(user=request.user.username)
     # Updating existing Data(Saving Changes)
