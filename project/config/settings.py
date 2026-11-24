@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/6.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
+
 import os
 from pathlib import Path
 from decouple import config
@@ -24,7 +25,7 @@ CSRF_TRUSTED_ORIGINS = ['https://personal-finance-tracker-pi8z.onrender.com', 'h
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'personal-finance-tracker-pi8z.onrender.com', '0.0.0.0']
 
@@ -58,6 +59,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'useraccounts/frontend/templates/'),
+            BASE_DIR / 'client' / 'dist',
             ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -121,7 +123,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'useraccounts' / 'frontend' / 'static'
+    BASE_DIR / 'useraccounts' / 'frontend' / 'static',
+    BASE_DIR / 'client' / 'dist'
 ]
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'

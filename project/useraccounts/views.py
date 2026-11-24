@@ -20,7 +20,7 @@ def loginView(request):
             user = authenticate(request, username=username, password=password)
             login(request, user)
 
-            return redirect('http://127.0.0.1:5173/home/')
+            return redirect('/home/')
             
         except Exception as e:
             print(f'Login Failed: {e}')
