@@ -64,7 +64,7 @@ Endpoints:
   - fetchTransactionInsights/ -> GET request that utilitzes a K-Means algorithm and retrieves values and sorts them via their centroid's value and ranks them to return a dictionary of values that pertain to the output of the K-Means algorithm, such as; size (ranked and ordered via cluster group), instances(count), center (centroid value), percentage(percent of sub-category in reference to the main category value), and amount(sum of all same-cluster values).
   - submitTransaction/ -> POST request to submit a new Transaction into the database. Done through the Transaction tab
   - fetchHistory/ -> GET request to fetch data pertaining to the user that will display them in an orderly fashion.
-  - fetchHistory/<int:t_id>/ -> PUT request that will update the transaction based off of the transaction id(unique identifier) that will be passed to the backend to identify the transaction and update any newly updated fields.
+  - fetchHistory/<int:t_id>/ -> PUT/DELETE request that will update the transaction based off of the transaction id(unique identifier) that will be passed to the backend to identify the transaction and update any newly updated fields or Delete the transaction that holds that id value.
   - plotData/ -> GET request that returns a plot class object(plot being the plotly chart) that will display the chart that reflects the users transaction data and is grouped based off transaction type(income/expense).
   
 ## Where to get help and provide feedback

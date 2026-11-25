@@ -45,16 +45,11 @@ def total_expense(request):
     return Response({'total expense': total})
 
 # Returning the amount of weight that every category has
-@api_view(['GET', 'PUT'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def sub_weights(request):
     # Retrieving the data pertaining to the user
     data = models.Transaction.objects.filter(user=request.user.username)
-
-    # Filtering the data with the date(month/year) as parameters
-    if request.method == 'PUT':
-        body = json.loads(request.body)
-        data = data.filter(date__month=body['month'], date__year=body['year'])
 
     month = request.GET.get('month', '')
     year = request.GET.get('year', '')
@@ -107,14 +102,11 @@ def helper_subweight(data, choices, totals):
 
 
 # K-means algorithm via a GET Request
-@api_view(['GET', 'PUT'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def fetchTransactionInsights(request):
     # Retreiving all data pertaining the user
     data = models.Transaction.objects.filter(user=request.user.username)
-    if request.method == 'PUT':
-        body = json.loads(request.body)
-        data = data.filter(date__month=body.get('month')) if body.get('month') != None else data
 
     month = request.GET.get('month', '')
     year = request.GET.get('year', '')
