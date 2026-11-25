@@ -8,6 +8,8 @@ https://personal-finance-tracker-pi8z.onrender.com/
 ## What does the app do?
 The goal of the application is supposed to display most/all of my skills learned from the IBM Full Stack Developer Course offered by Coursera. The core function of this application is to aid in monitoring your finances, more specifically transactions that identify as either Income or Expense. Expense being what you spent(financial loss), and Income being what you earned(financial gain). User authentication has also been added as you can register/login to the app itself in order to access data pertaining to the logged-in user. The registration process is straight-forward and simple, allowing for quick and easy access! After logging in, you would be redirected to the dashboard, which is also displaying your navigation bar that will redirect you to the transaction, logout, history, or home(default) route. If you are a new user, you would input your financial data(non-sensitive) into the transaction page, after inserting your data, you may edit/update/delete your previous records on this page. After data has been sent to the database(after successfully submitting your first ever financial transaction), the homepage tab should be showing data reflecting your transactions and grouping them by the transaction_type variable  from the Transaction Model, color coding them by red(Expense) and blue(Income). After using the application, you may logout and return to the login page.
 
+The Application utilizes ReactJS to serve the frontend and make API calls to the Backend. The Backend is made up of Django to manipulate the database through queries via API calls and display the necessary data endpoints, as well as serve the authentication/authorization process(login, register, and logout).
+
 ## What is the app useful for?
 I developed this app with the idea of an application that can aid with people who don't take their financial expenses seriously. The idea was to formulate a much simpler approach by developing an application meant for people who want to track certain expenses to induce healthy habits. How does this simple app do that? You shouldn't go into something new without taking 'small steps'. Developing something new takes initiative, and taking that initiative should be relatively simple and easy. 
 
@@ -23,11 +25,15 @@ I think financial stability is an essential step for anyone wanting to become re
   4. Run command in terminal: pip install -r requirements.txt ---> This will install all necessary python packages
   5. Run command: npm install ---> This will install all necessary js packages
   6. cd into the main project/ folder
-  7. Run command: python manage.py makemigrations useraccounts ---> will create the migrations folder to perform migration and including all models in the useraccounts/ directory
-  8. Run command: python manage.py migrate ---> will migrate all models and translate them into a SQLite3 database(especially from the app/ directory)
-  9. Run command: python manage.py collectstatic --noinput ----> migrate all static folders/files into a static/ folder directory
-  10. Run command: python manage.py runserver ---> this will start the web server on port 8000 on your local machine
-  11. On your preferred web browser, go to: localhost:8000/  (Note: You may disable or enable debug in the settings.py file in the config/ folder)
+  7. cd into the client/ folder
+  8. Run command: npm install --> installs necessary packages to start the reactjs frontend
+  9. Run command: npm run build --> builds the necessary index.html to reference your .jsx files
+  10. cd back into project/
+  11. Run command: python manage.py makemigrations useraccounts ---> will create the migrations folder to perform migration and including all models in the useraccounts/ directory
+  12. Run command: python manage.py migrate ---> will migrate all models and translate them into a SQLite3 database(especially from the app/ directory)
+  13. Run command: python manage.py collectstatic --noinput ----> migrate all static folders/files into a static/ folder directory
+  14. Run command: python manage.py runserver ---> this will start the web server on port 8000 on your local machine
+  15. On your preferred web browser, go to: localhost:8000/  (Note: You may disable or enable debug in the settings.py file in the config/ folder)
 
 ### While in the application:
   1. Register if you do not have an account ---> first and last name aren't required but password and username are!
@@ -39,25 +45,27 @@ I think financial stability is an essential step for anyone wanting to become re
 
 ### Pages:
   Home: Displays a graph that reflects your total transactions, Empty if no transactions are entered by the user(new user or filtered to a date where no transactions correlate to that date(month/year))
-<img width="1830" height="947" alt="homepage_dashboard" src="https://github.com/user-attachments/assets/3c1eb643-1b8e-46d6-8696-f185ec734fad" />
+<img width="1849" height="822" alt="new_home" src="https://github.com/user-attachments/assets/7246a6d0-1401-4c6a-a026-317c1856a36d" />
 
   Add a Transaction: Add a transaction by; specifying type(Income/Expense), Amount, Date of transaction, and an optional message.
-<img width="1205" height="932" alt="transaction_page" src="https://github.com/user-attachments/assets/93de8089-cb0d-41b9-94fb-a089f1306d7e" />
+<img width="1010" height="958" alt="new_transaction" src="https://github.com/user-attachments/assets/ba60e4f8-aa47-43cb-aa6f-f6b6813331be" />
 
   History: Where you may edit previous, view total, or delete transactions.
 <img width="1835" height="522" alt="history_page" src="https://github.com/user-attachments/assets/e929b085-360b-418e-9d6e-2c49d65bee63" />
-<img width="1190" height="917" alt="history_edit_modal" src="https://github.com/user-attachments/assets/47661b0f-df73-413e-9d47-d131eb3262a6" />
+<img width="938" height="936" alt="new_edit_history" src="https://github.com/user-attachments/assets/c36d1f97-1e38-4cba-9d4b-bbfbd00662fb" />
 
 
-## API Endpoints
+## API Endpoints (Called via useEffect()/fetch() method calls)
 I've added my own REST API in order to retrieve certain values pertaining to the transaction data that the user has entered into the database. This provides the user with valuable information in correspondence to their data via entered transactions to spot trends and patterns.
 Endpoints: 
-  - subWeights/ -> retrieves the sub-category weights in correspondence to the income, expense, and grand total in reference to their own value as a dictionary
-  - totalIncome/ -> retrieves the total amount of transactions categorized as income
-  - totalExpense/ -> retrieves the total amount of transactions caegorized as expense
-  - fetchTransactionInsights/ -> uses a K-Means algorithm and retrieves values and sorts them via their centroid's value and ranks them to return a dictionary of values that pertain to the output of the K-Means algorithm, such as; size (ranked and ordered via cluster group), instances(count), center (centroid value), percentage(percent of sub-category in reference to the main category value), and amount(sum of all same-cluster values).
-
-NOTE: These values are retrieved on the HomePage via the dashboard. The user may filter the data to a specific date via the date input at the top of the page. If you would like to test the API with certain values, you may update the tests.py file in the 'useraccounts/' directory. After, run 'python manage.py test' to run assertion test cases.
+  - subWeights/ -> GET request that retrieves the sub-category weights in correspondence to the income, expense, and grand total in reference to their own value as a dictionary
+  - totalIncome/ -> GET request that retrieves the total amount of transactions categorized as income
+  - totalExpense/ -> GET request that retrieves the total amount of transactions caegorized as expense
+  - fetchTransactionInsights/ -> GET request that utilitzes a K-Means algorithm and retrieves values and sorts them via their centroid's value and ranks them to return a dictionary of values that pertain to the output of the K-Means algorithm, such as; size (ranked and ordered via cluster group), instances(count), center (centroid value), percentage(percent of sub-category in reference to the main category value), and amount(sum of all same-cluster values).
+  - submitTransaction/ -> POST request to submit a new Transaction into the database. Done through the Transaction tab
+  - fetchHistory/ -> GET request to fetch data pertaining to the user that will display them in an orderly fashion.
+  - fetchHistory/<int:t_id>/ -> PUT request that will update the transaction based off of the transaction id(unique identifier) that will be passed to the backend to identify the transaction and update any newly updated fields.
+  - plotData/ -> GET request that returns a plot class object(plot being the plotly chart) that will display the chart that reflects the users transaction data and is grouped based off transaction type(income/expense).
   
 ## Where to get help and provide feedback
 Help/Feedback:
