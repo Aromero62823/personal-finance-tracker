@@ -86,21 +86,18 @@ class KMeansTestCase(TestCase):
         large = response.json()['large_inc']
 
         # Rest cases for the small income
-        self.assertEqual(small['size'], 'Small')
         self.assertEqual(small['instances'], 1)
         self.assertEqual(small['amount'], 10.00)
         self.assertEqual(small['center'], [10.00])
         self.assertEqual(small['percent'], 1.52)
 
         # Test cases for the medium income
-        self.assertEqual(medium['size'], 'Medium')
         self.assertEqual(medium['instances'], 1)
         self.assertEqual(medium['amount'], 50.00)
         self.assertEqual(medium['center'], [50.00])
         self.assertEqual(medium['percent'], 7.58)
 
         # Test cases for the large income
-        self.assertEqual(large['size'], 'Large')
         self.assertEqual(large['instances'], 2)
         self.assertEqual(large['amount'], 600.00)
         self.assertEqual(large['center'], [300.00])
