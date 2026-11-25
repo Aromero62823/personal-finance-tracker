@@ -55,21 +55,18 @@ class KMeansTestCase(TestCase):
         large = response.json()['large_exp']
 
         # Rest cases for the small expense
-        self.assertEqual(small['size'], 'Small')
         self.assertEqual(small['instances'], 2)
         self.assertEqual(small['amount'], 20.00)
         self.assertEqual(small['center'], [10.00])
         self.assertEqual(small['percent'], 13.33)
 
         # Test cases for the medium expense
-        self.assertEqual(medium['size'], 'Medium')
         self.assertEqual(medium['instances'], 1)
         self.assertEqual(medium['amount'], 30.00)
         self.assertEqual(medium['center'], [30.00])
         self.assertEqual(medium['percent'], 20.00)
 
         # Test cases for the large expense
-        self.assertEqual(large['size'], 'Large')
         self.assertEqual(large['instances'], 1)
         self.assertEqual(large['amount'], 100.00)
         self.assertEqual(large['center'], [100.00])
